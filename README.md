@@ -18,6 +18,8 @@ Tarvitaan:
 > price |	int | Lipun hinta
 > ticketUsedDate | timestamp | Lipun käyttö pvm
 > ticketTypeId | int FK | Tapahtuma, viittaus TicketType-tauluun
+ 
+
 
 
 
