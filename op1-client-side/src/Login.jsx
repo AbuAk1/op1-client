@@ -7,31 +7,36 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const url = "https://visio/api/login"; //??
+
+  
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    
+    const cred = btoa(`${username}:${password}`);
 
     try {
-      const response = await fetch('https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/login', {
+      const response = await fetch( url , {
         method: 'POST',
         headers: {
+          'Authorization ': `Basic ${cred}` ,
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ kayttajatunnus: username, salasana: password }),
+        }
       });
 
       if (!response.ok) {
         console.log(response);
         throw new Error('Kirjautuminen epäonnistui');
       }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.jwt);
-      console.log(data);
-      console.log(data.jwt);
+      
+      if (response.ok){
+      sessionStorage.setItem('auth', `Basic ${credentials}`);
+      
       alert('Kirjautuminen onnistui!');
       navigate("/tarkistus");
-      
+    }
       
     } catch (err) {
       setError(err.message);
