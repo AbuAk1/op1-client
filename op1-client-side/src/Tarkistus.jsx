@@ -17,7 +17,7 @@ function Tarkistus() {
 
         console.log(token);
 
-        const response = await fetch(`https://ohjelmistoprojekti-1-git-h2-tiimi-7-ticket-guru.2.rahtiapp.fi/api/liput/${lippunumero}`, {
+        const response = await fetch(`https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippunumero}`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,  // Lisätään JWT-tunnus pyyntöön
@@ -49,7 +49,7 @@ function Tarkistus() {
   
           console.log(token);
   
-          const response = await fetch(`https://ohjelmistoprojekti-1-git-h2-tiimi-7-ticket-guru.2.rahtiapp.fi/api/liput/${lippunumero}`, {
+          const response = await fetch(`https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippunumero}`, {
             method: "PATCH",
             headers: {
               "Authorization": `Bearer ${token}`,  // Lisätään JWT-tunnus pyyntöön

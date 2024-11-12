@@ -12,7 +12,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('https://ohjelmistoprojekti-1-git-h2-tiimi-7-ticket-guru.2.rahtiapp.fi/api/login', {
+      const response = await fetch('https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
