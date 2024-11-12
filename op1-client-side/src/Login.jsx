@@ -7,32 +7,35 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const url = "https://visio/api/login"; //??
+  const url = "https://postman-echo.com/basic-auth"; //??
 
   
+  // const cred = btoa(`${username}:${password}`);
+  const cred= "cG9zdG1hbjpwYXNzd29yZA==";
   
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     
-    const cred = btoa(`${username}:${password}`);
-
+    console.log(username);
     try {
-      const response = await fetch( url , {
-        method: 'POST',
+      const response = await fetch(url, {
+        // method: 'POST',
+        method: 'GET', //postmanissa auth testaukseen
         headers: {
-          'Authorization ': `Basic ${cred}` ,
+          'Authorization': `Basic ${cred}`,
           'Content-Type': 'application/json',
         }
       });
-
+      
       if (!response.ok) {
         console.log(response);
+        // console.log(cred)
         throw new Error('Kirjautuminen epäonnistui');
       }
       
       if (response.ok){
-      sessionStorage.setItem('auth', `Basic ${credentials}`);
+      sessionStorage.setItem('auth', `Basic ${cred}`);
       
       alert('Kirjautuminen onnistui!');
       navigate("/tarkistus");
@@ -40,6 +43,7 @@ const Login = () => {
       
     } catch (err) {
       setError(err.message);
+      // console.log(cred)
     }
   };
 
