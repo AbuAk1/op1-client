@@ -4,90 +4,89 @@ import { useState } from 'react'
 
 function Tarkistus() {
 
-    const [lippunumero, setLippunumero] = useState("");
+  const [lippunumero, setLippunumero] = useState("");
 
-    const [lippu , setLippu] = useState(null);
-  
-    const etsi = async () => {
-      console.log(lippunumero)
-      
-      const token = localStorage.getItem("token");
+  const [lippu, setLippu] = useState(null);
 
-      try {
+  const url = "https://visio/api/tickets/"; //??
+  const auth = localStorage.getItem("auth");
 
-        console.log(token);
+  const etsi = async () => {
+    // console.log(lippunumero)
 
-        const response = await fetch(`https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippunumero}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,  // Lisätään JWT-tunnus pyyntöön
-            "Content-Type": "application/json"
-          }
-        });
+    try {
 
-        if (response.ok) {
-          const data = await response.json();
-            console.log(data)
-          setLippu(data);  // Aseta haettu lipputieto lippu-tilaan
-        } else {
-          console.error("Virhe lipun haussa");
-          setLippu(null); // Tyhjennä lippu, jos virhe
+      const response = await fetch(`${url}${lippunumero}`, {
+        method: "GET",
+        headers: {
+          "Authorization": auth,
+          "Content-Type": "application/json"
         }
-      } catch (error) {
-        console.error("Virhe pyynnön aikana:", error);
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // console.log(data)
+        setLippu(data);
+      } else {
+        console.error("Virhe lipun haussa");
         setLippu(null);
       }
-    };
+    } catch (error) {
+      console.error("Virhe pyynnön aikana:", error);
+      setLippu(null);
+    }
+  };
 
 
-    const kaytaLippu = async () => {
-        console.log(lippunumero)
-        
-        const token = localStorage.getItem("token");
+  const kaytaLippu = async () => {
   
-        try {
-  
-          console.log(token);
-  
-          const response = await fetch(`https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippunumero}`, {
-            method: "PATCH",
-            headers: {
-              "Authorization": `Bearer ${token}`,  // Lisätään JWT-tunnus pyyntöön
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ "kaytetty": true,}),
-          });
-  
-          if (response.ok) {
-            const data = await response.json();
-              console.log(data)
-            setLippu(data);  // Aseta haettu lipputieto lippu-tilaan
-          } else {
-            console.error("Virhe lipun haussa");
-            setLippu(null); // Tyhjennä lippu, jos virhe
-          }
-        } catch (error) {
-          console.error("Virhe pyynnön aikana:", error);
-          setLippu(null);
-        }
-      };
+    try {
+      const response = await fetch(`${url}${lippunumero}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": auth,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(
+          {
+            "hashcode": "62742b11b766e3f6958108e57734d823",
+            "ticketUsedDate": "2024-10-08T11:09:20",
+            "transaction": null,
+            "ticketType": null
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data)
+        setLippu(data);  
+      } else {
+        console.error("Virhe lipun haussa");
+        setLippu(null); // Tyhjennä lippu, jos virhe
+      }
+    } catch (error) {
+      console.error("Virhe pyynnön aikana:", error);
+      setLippu(null);
+    }
+  };
 
   return (
     <>
 
-        <label>Anna lippunumero
-          <input type='text' name='lippunumero'  onChange={e => setLippunumero(e.target.value)}/><br />
-        </label>
-        <input type='button' value='Etsi' onClick={etsi} />
+      <label>Anna lippunumero
+        <input type='text' name='lippunumero' onChange={e => setLippunumero(e.target.value)} /><br />
+      </label>
+      <input type='button' value='Etsi' onClick={etsi} />
 
       {lippu && <div>
-        LippuId: {lippu.lippuId} <br />
-        Tapahtuman nimi: {lippu.tapahtuma.nimi}<br />
-        Hintaluokka: {lippu.hinnasto.hintaluokka} <br />
-        Lippumäärä: {lippu.maara}<br />
-        Käytetty: {lippu.kaytetty.toString()} <br/>
+        ticketId: {lippu.ticketId} <br />
+        hashcode: {lippu.tapahtuma.nimi}<br />
+        ticketUsedDate: {lippu.ticketUsedDate} <br />
+        transaction: {lippu.transaction}<br />
+        ticketType: {lippu.ticketType} <br />
         <button onClick={kaytaLippu}>Merkitse käytetyksi</button>
-        </div>}
+      </div>}
     </>
   );
 }
