@@ -81,11 +81,11 @@ function Tarkistus() {
 
       {lippu && <div>
         
-        ticketId: {lippu.ticketId} <br />
-        hashcode: {lippu.hashcode}<br />
-        ticketUsedDate: {lippu.ticketUsedDate} <br />
-        transaction: {lippu.transaction}<br />
-        ticketType: {lippu.ticketType} <br />
+        ticketId: {lippu.ticketId || "Ei saatavilla"} <br />
+        hashcode: {lippu.hashcode || "Ei saatavilla" }<br />
+        ticketUsedDate: {lippu.ticketUsedDate || "Ei saatavilla"} <br />
+        transaction: {lippu.transaction || "Ei saatavilla"}<br />
+        ticketType: {lippu.ticketType || "Ei saatavilla"} <br />
 
         <button onClick={kaytaLippu}>Merkitse käytetyksi</button>
       </div>}
