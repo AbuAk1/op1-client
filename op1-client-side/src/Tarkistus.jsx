@@ -80,11 +80,13 @@ function Tarkistus() {
       <input type='button' value='Etsi' onClick={etsi} />
 
       {lippu && <div>
+        
         ticketId: {lippu.ticketId} <br />
-        hashcode: {lippu.tapahtuma.nimi}<br />
+        hashcode: {lippu.hashcode}<br />
         ticketUsedDate: {lippu.ticketUsedDate} <br />
         transaction: {lippu.transaction}<br />
         ticketType: {lippu.ticketType} <br />
+
         <button onClick={kaytaLippu}>Merkitse käytetyksi</button>
       </div>}
     </>
