@@ -20,7 +20,7 @@ function Tarkistus() {
         const response = await fetch(`https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippunumero}`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,  // Lisätään JWT-tunnus pyyntöön
+            "Authorization": `Bearer ${token}`, 
             "Content-Type": "application/json"
           }
         });
@@ -28,10 +28,10 @@ function Tarkistus() {
         if (response.ok) {
           const data = await response.json();
             console.log(data)
-          setLippu(data);  // Aseta haettu lipputieto lippu-tilaan
+          setLippu(data);  
         } else {
           console.error("Virhe lipun haussa");
-          setLippu(null); // Tyhjennä lippu, jos virhe
+          setLippu(null); 
         }
       } catch (error) {
         console.error("Virhe pyynnön aikana:", error);
@@ -52,7 +52,7 @@ function Tarkistus() {
           const response = await fetch(`https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippunumero}`, {
             method: "PATCH",
             headers: {
-              "Authorization": `Bearer ${token}`,  // Lisätään JWT-tunnus pyyntöön
+              "Authorization": `Bearer ${token}`, 
               "Content-Type": "application/json"
             },
             body: JSON.stringify({ "kaytetty": true,}),
@@ -61,10 +61,10 @@ function Tarkistus() {
           if (response.ok) {
             const data = await response.json();
               console.log(data)
-            setLippu(data);  // Aseta haettu lipputieto lippu-tilaan
+            setLippu(data);  
           } else {
             console.error("Virhe lipun haussa");
-            setLippu(null); // Tyhjennä lippu, jos virhe
+            setLippu(null); 
           }
         } catch (error) {
           console.error("Virhe pyynnön aikana:", error);
