@@ -6,6 +6,8 @@ function Tarkistus() {
 
     const [lippunumero, setLippunumero] = useState("");
 
+    const [lippuId, setLippuId] =  useState("");
+
     const [lippu , setLippu] = useState(null);
   
     const etsi = async () => {
@@ -15,9 +17,9 @@ function Tarkistus() {
 
       try {
 
-        console.log(token);
+        // console.log(token);
 
-        const response = await fetch(`https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippunumero}`, {
+        const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/koodi/${lippunumero}`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`, 
@@ -29,6 +31,7 @@ function Tarkistus() {
           const data = await response.json();
             console.log(data)
           setLippu(data);  
+          setLippuId(data.lippuId);
         } else {
           console.error("Virhe lipun haussa");
           setLippu(null); 
@@ -47,9 +50,12 @@ function Tarkistus() {
   
         try {
   
-          console.log(token);
-  
-          const response = await fetch(`https://ticketguru-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippunumero}`, {
+          // console.log(token);
+          
+
+          console.log(lippuId);
+
+          const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
             method: "PATCH",
             headers: {
               "Authorization": `Bearer ${token}`, 
@@ -72,6 +78,43 @@ function Tarkistus() {
         }
       };
 
+
+      
+    const eikaytaLippu = async () => {
+      console.log(lippunumero)
+      
+      const token = localStorage.getItem("token");
+
+      try {
+
+        // console.log(token);
+        
+
+        console.log(lippuId);
+
+        const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
+          method: "PATCH",
+          headers: {
+            "Authorization": `Bearer ${token}`, 
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ "kaytetty": false,}),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+            console.log(data)
+          setLippu(data);  
+        } else {
+          console.error("Virhe lipun haussa");
+          setLippu(null); 
+        }
+      } catch (error) {
+        console.error("Virhe pyynnön aikana:", error);
+        setLippu(null);
+      }
+    };
+
   return (
     <>
 
@@ -87,6 +130,7 @@ function Tarkistus() {
         Lippumäärä: {lippu.maara}<br />
         Käytetty: {lippu.kaytetty.toString()} <br/>
         <button onClick={kaytaLippu}>Merkitse käytetyksi</button>
+        <button onClick={eikaytaLippu}>ei käytä</button>
         </div>}
     </>
   );

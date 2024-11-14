@@ -4,7 +4,11 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Login from './Login'
 import Tarkistus from './Tarkistus'
+import Myynti from './Myynti'
 import {createBrowserRouter, RouterProvider,} from "react-router-dom";
+
+import Home from './Home'
+
 
 const router = createBrowserRouter([
   {
@@ -12,8 +16,16 @@ const router = createBrowserRouter([
     element: <Login />
   },
   {
+    path: 'home',
+    element: <Home />
+  },
+  {
     path: 'tarkistus',
     element: <Tarkistus />
+  },
+  {
+    path: 'myynti',
+    element: <Myynti />
   },
 ]);
 
