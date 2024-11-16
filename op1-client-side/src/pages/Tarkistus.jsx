@@ -22,7 +22,7 @@ function Tarkistus() {
         const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/koodi/${lippunumero}`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`, 
+            "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
           }
         });
@@ -45,14 +45,9 @@ function Tarkistus() {
 
     const kaytaLippu = async () => {
         console.log(lippunumero)
-        
         const token = localStorage.getItem("token");
-  
         try {
-  
           // console.log(token);
-          
-
           console.log(lippuId);
 
           const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
@@ -86,10 +81,7 @@ function Tarkistus() {
       const token = localStorage.getItem("token");
 
       try {
-
         // console.log(token);
-        
-
         console.log(lippuId);
 
         const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {

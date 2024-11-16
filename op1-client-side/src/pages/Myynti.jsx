@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 
+
 function Myynti() {
     const token = localStorage.getItem("token");
     const [tapahtumat, setTapahtumat] = useState(null);
     const [openDropdown, setOpenDropdown] = useState(null); // Dropdown-tila
+    const [hinnastot, setHinnastot] = useState([]);
+
+    const [lisatytLiput, setLisatytLiput] = useState([]);
+
+
+
 
     //haetapahtumat
-
     const haeTapahtumat = async () => {
         try {
             const response = await fetch(
@@ -22,7 +28,7 @@ function Myynti() {
             if (response.ok) {
                 const data = await response.json();
                 setTapahtumat(data);
-                console.log(data)
+                // console.log(data)
             } else {
                 console.error("Virhe lipun haussa");
                 setTapahtumat(null);
@@ -37,11 +43,6 @@ function Myynti() {
     const toggleDropdown = (index) => {
         setOpenDropdown(openDropdown === index ? null : index);
     };
-
-
-
-
-
 
 
     const [formData, setFormData] = useState({
@@ -59,13 +60,27 @@ function Myynti() {
             ...prevData,
             [section]: {
                 ...prevData[section],
-                [field]: value
+                [field]: value,
             }
         }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+
+
+        const formData = new FormData(e.target); // K
+        const json = Object.fromEntries(formData.entries()); // Muutetaan JSON-muotoon.
+
+        console.log(json)
+
+
+        // Lisää uusi JSON-objekti lippulistaan
+        setLisatytLiput((prevLippulista) => [...prevLippulista, json]);
+
+
+        // setLisatytLiput(json);
 
         // try {
         //     const response = await fetch('https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtuma', {
@@ -86,6 +101,32 @@ function Myynti() {
         // }
     };
 
+
+    const haeHinnastot = async (tapahtuma_id) => {
+        try {
+            const response = await fetch(
+                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtuma_id}/hinnastot`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                setHinnastot(data);
+                // console.log(data)
+            } else {
+                console.error("Virhe lipun haussa");
+                setHinnastot(null);
+            }
+        } catch (error) {
+            console.error("Virhe pyynnön aikana:", error);
+            setHinnastot(null);
+        }
+    };
 
 
 
@@ -109,6 +150,7 @@ function Myynti() {
                             <div className="event-action">
                                 <button onClick={() => toggleDropdown(index)}>Myy lippuja</button>
                                 {openDropdown === index && (
+
                                     <div className="dropdown">
                                         <p>Myyntinäkymä tulossa...</p>
                                         <form onSubmit={handleSubmit}>
@@ -117,19 +159,26 @@ function Myynti() {
                                                 <input
                                                     type="number"
                                                     name="tapahtuma.tapahtumaId"
-                                                    placeholder={tap.tapahtumaId}
-                                                    value={formData.tapahtuma.tapahtumaId}
-                                                    onChange={handleChange}
+                                                    value={tap.tapahtumaId}  // Käytetään vain tap.tapahtumaId arvoa
+                                                    onChange={(e) => handleChange(e)}  // Jos haluat päivittää formDataa, mutta et kenttää
                                                 />
                                             </div>
                                             <div>
-                                                <label>Hinnasto ID:</label>
-                                                <input
-                                                    type="number"
+                                                <label>Hintaluokka:</label>
+                                                <select
                                                     name="hinnasto.hinnastoid"
                                                     value={formData.hinnasto.hinnastoid}
-                                                    onChange={handleChange}
-                                                />
+                                                    onChange={(e) => handleChange(e)}
+                                                    onClick={() => haeHinnastot(tap.tapahtumaId)} // Hakee hinnastot
+                                                >
+                                                    <option value="" disabled>Valitse hintaluokka</option>
+                                                    {hinnastot &&
+                                                        hinnastot.map((hinnasto) => (
+                                                            <option key={hinnasto.hinnastoid} value={hinnasto.hinnastoid}>
+                                                                {hinnasto.hintaluokka} {hinnasto.hinta} €
+                                                            </option>
+                                                        ))}
+                                                </select>
                                             </div>
                                             {/* <div>
                                                 <label>Maksutapahtuma ID:</label>
@@ -140,7 +189,21 @@ function Myynti() {
                                                     onChange={handleChange}
                                                 />
                                             </div> */}
-                                            <button type="submit">Lähetä</button>
+                                            {/* <button type="button" onClick={lisaaLippu}>Lisää lippu</button> */}
+
+                                            <button type="submit">Lisää lippu</button>
+
+
+                                            <h3>Lisätyt tiedot:</h3>
+                                            <ul>
+                                                {lisatytLiput.map((lippu, index) => (
+                                                    <li key={index}>
+                                                        Lippu: TapahtumaID: {lippu['tapahtuma.tapahtumaId'] || "Ei tapahtumaId"} ,
+                                                        Hinnastoid: {lippu['hinnasto.hinnastoid'] || "Ei hinnastoid"},
+                                                        Maksutapahtumaid: {lippu['tapahtuma.maksutapahtumaId'] || "Ei maksutapahtumaID"}
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         </form>
                                     </div>
                                 )}
