@@ -1,70 +1,40 @@
-import React from 'react'
+import React from 'react';
+import { Paper, List, ListItem, ListItemText, Typography } from '@mui/material';
+// import { styled } from '@emotion/styled';
+// import { Paper } from '@mui/material';
 
-function Lippu() {
-    
-    const tap = props;
+export const Lippu = ({ lippu }) => {
+  return (
+    <Paper elevation={2} style={{ margin: '10px', padding: '10px' }}>
+      <List>
+        <ListItem>
+          <ListItemText
+            primary={<Typography variant="h6">LippuId: {lippu.lippuId}</Typography>}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemText
+            primary={<Typography variant="body1">Tapahtuman nimi: {lippu.tapahtuma.nimi}</Typography>}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemText
+            primary={<Typography variant="body1">Hintaluokka: {lippu.hinnasto.hintaluokka}</Typography>}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemText
+            primary={<Typography variant="body1">Lippumäärä: {lippu.maara}</Typography>}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemText
+            primary={<Typography variant="body1">Käytetty: {lippu.kaytetty.toString()}</Typography>}
+          />
+        </ListItem>
+      </List>
+    </Paper>
+  );
+};
 
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        // try {
-        //     const response = await fetch('https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtuma', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         },
-        //         body: JSON.stringify(formData)
-        //     });
-
-        //     if (response.ok) {
-        //         console.log("Lähetys onnistui!");
-        //     } else {
-        //         console.log("Virhe lähetyksessä");
-        //     }
-        // } catch (error) {
-        //     console.error("Virhe:", error);
-        // }
-    };
-
-    
-
-    return (
-        <div className="dropdown">
-            <p>Myyntinäkymä tulossa...</p>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Tapahtuma ID:</label>
-                    <input
-                        type="number"
-                        name="tapahtuma.tapahtumaId"
-                        placeholder={tap.tapahtumaId}
-                        value={formData.tapahtuma.tapahtumaId}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Hinnasto ID:</label>
-                    <input
-                        type="number"
-                        name="hinnasto.hinnastoid"
-                        value={formData.hinnasto.hinnastoid}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* <div>
-            <label>Maksutapahtuma ID:</label>
-            <input
-                type="number"
-                name="maksutapahtuma.maksutapahtumaId"
-                value={formData.maksutapahtuma.maksutapahtumaId}
-                onChange={handleChange}
-            />
-        </div> */}
-                <button type="submit">Lähetä</button>
-            </form>
-        </div>
-    )
-}
-
-export default Lippu
+export default Lippu;

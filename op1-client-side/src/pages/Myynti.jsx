@@ -141,7 +141,7 @@ function Myynti() {
                                     <div className="dropdown">
                                         <p>Myyntinäkymä tulossa...</p>
                                         <form onSubmit={handleSubmit}>
-                                            <div>
+                                            <div style={{ display: 'none' }}>
                                                 <label>Tapahtuma ID:</label>
                                                 <input
                                                     type="number"
@@ -167,15 +167,16 @@ function Myynti() {
                                                         ))}
                                                 </select>
                                             </div>
-                                            {/* <div>
+                                            <div style={{ display: 'none' }}>
                                                 <label>Maksutapahtuma ID:</label>
                                                 <input
+                                                    
                                                     type="number"
                                                     name="maksutapahtuma.maksutapahtumaId"
                                                     value={formData.maksutapahtuma.maksutapahtumaId}
                                                     onChange={handleChange}
                                                 />
-                                            </div> */}
+                                            </div>
                                             {/* <button type="button" onClick={lisaaLippu}>Lisää lippu</button> */}
 
                                             <button type="submit">Lisää lippu</button>
