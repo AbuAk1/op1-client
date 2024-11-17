@@ -1,9 +1,13 @@
 import React from 'react';
 import { Paper, List, ListItem, ListItemText, Typography } from '@mui/material';
-// import { styled } from '@emotion/styled';
-// import { Paper } from '@mui/material';
+// import { QRCode } from 'qrcode.react';
+
+import ReactDOM from 'react-dom';
+import {QRCodeSVG} from 'qrcode.react';
+
 
 export const Lippu = ({ lippu }) => {
+    // console.log(lippu.koodi);
   return (
     <Paper elevation={2} style={{ margin: '10px', padding: '10px' }}>
       <List>
@@ -31,6 +35,13 @@ export const Lippu = ({ lippu }) => {
           <ListItemText
             primary={<Typography variant="body1">Käytetty: {lippu.kaytetty.toString()}</Typography>}
           />
+        </ListItem>
+
+        <ListItem>
+        <QRCodeSVG value={lippu.koodi} size={256} fgColor="#000000" bgColor="#ffffff" />
+        {/* <QRCodeSVG value={"https://dev.to/onlyoneerin/creating-dynamic-qr-codes-using-reactjs-a-step-by-step-tutorial-341a"} size={256} fgColor="#000000" bgColor="#ffffff" /> */}
+
+
         </ListItem>
       </List>
     </Paper>

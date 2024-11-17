@@ -9,7 +9,7 @@ function Maksu() {
 
     // Pääsy siirrettyyn dataan state-ominaisuudesta
     const { lisatytLiput } = location.state || {};
-    const [maksutapahtuma, setMaksutapahtuma] = useState("2");
+    const [maksutapahtuma, setMaksutapahtuma] = useState();
 
 
     const [liput, setLiput] = useState(lisatytLiput);
@@ -17,19 +17,25 @@ function Maksu() {
 
     const [myydytLiput, setMyydytLiput] = useState([]);
 
+    
 
 
     const laskuta = async () => {
 
         // alert("Ensi luodaan maksutapahtuma");
-        // luoUusiMaksutapahtuma();
+        //  const maksutapahtuma = await luoUusiMaksutapahtuma();
+
+        console.log("tässä piätisi olla uuden maksutapahtuman id" + JSON.stringify(maksutapahtuma));
 
         // console.log(maksutapahtuma)
         // console.log(lisatytLiput)
 
+        if (maksutapahtuma) {
+
         for (let i = 0; i < liput.length; i++) {
             liput[i]["maksutapahtuma.maksutapahtumaId"] = maksutapahtuma;
         }
+        
 
 
         console.log(liput)
@@ -69,23 +75,27 @@ function Maksu() {
                     const data = await response.json();
                     setMyydytLiput(prevLiput => [...prevLiput, data]);
 
-                    console.log(myydytLiput)
+                    // console.log(myydytLiput)
+                    console.log(data)
 
                 } else {
                     console.error("Virhe lipun haussa");
 
                 }
             } catch (error) {
+                
                 console.error("Virhe pyynnön aikana:", error);
 
             }
         }
-
+    }
 
     }
 
 
-    console.log(myydytLiput[1])
+    // console.log(myydytLiput[0])
+
+    // console.log(maksutapahtuma)
 
     const luoUusiMaksutapahtuma = async () => {
 
@@ -109,15 +119,15 @@ function Maksu() {
             );
             if (response.ok) {
                 const data = await response.json();
-                setMaksutapahtuma(data);
+                setMaksutapahtuma(data["maksutapahtumaId"]);
                 console.log(data)
             } else {
                 console.error("Virhe maksutapahtuman luonnissa");
-                setMaksutapahtuma(null);
+                // setMaksutapahtuma(null);
             }
         } catch (error) {
             console.error("Virhe pyynnön aikana:", error);
-            setMaksutapahtuma(null);
+            // setMaksutapahtuma(null);
         }
 
     }
@@ -149,8 +159,10 @@ function Maksu() {
                 </div>
             ) : (
                 <p>Ei saatavilla tietoja maksua varten.</p>
-            )}
+            )} 
 
+
+            <button onClick={luoUusiMaksutapahtuma}>Aloita Maksutapahtuma</button>
             <button onClick={laskuta}>Laskuta ja tulosta liput</button>
 
             {myydytLiput.length > 0 ? (
