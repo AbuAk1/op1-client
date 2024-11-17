@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { useNavigate } from "react-router-dom";
 
 function Myynti() {
     const token = localStorage.getItem("token");
@@ -79,26 +79,6 @@ function Myynti() {
         // Lisää uusi JSON-objekti lippulistaan
         setLisatytLiput((prevLippulista) => [...prevLippulista, json]);
 
-
-        // setLisatytLiput(json);
-
-        // try {
-        //     const response = await fetch('https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtuma', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         },
-        //         body: JSON.stringify(formData)
-        //     });
-
-        //     if (response.ok) {
-        //         console.log("Lähetys onnistui!");
-        //     } else {
-        //         console.log("Virhe lähetyksessä");
-        //     }
-        // } catch (error) {
-        //     console.error("Virhe:", error);
-        // }
     };
 
 
@@ -128,7 +108,14 @@ function Myynti() {
         }
     };
 
+    const navigate = useNavigate();
 
+    const siirryMaksuun = () => {
+
+        console.log(lisatytLiput)
+
+        navigate("/maksu", { state: { lisatytLiput } });
+    }
 
 
     return (
@@ -194,17 +181,21 @@ function Myynti() {
                                             <button type="submit">Lisää lippu</button>
 
 
-                                            <h3>Lisätyt tiedot:</h3>
+                                         
+
+                                            
+                                        </form>
+                                        <h3>Lisätyt tiedot:</h3>
                                             <ul>
                                                 {lisatytLiput.map((lippu, index) => (
                                                     <li key={index}>
                                                         Lippu: TapahtumaID: {lippu['tapahtuma.tapahtumaId'] || "Ei tapahtumaId"} ,
                                                         Hinnastoid: {lippu['hinnasto.hinnastoid'] || "Ei hinnastoid"},
-                                                        Maksutapahtumaid: {lippu['tapahtuma.maksutapahtumaId'] || "Ei maksutapahtumaID"}
+                                                        {/* Maksutapahtumaid: {lippu['tapahtuma.maksutapahtumaId'] || "Ei maksutapahtumaID"} */}
                                                     </li>
                                                 ))}
                                             </ul>
-                                        </form>
+                                        <button type='button' onClick={siirryMaksuun}>Siirry Maksuun</button>
                                     </div>
                                 )}
                             </div>

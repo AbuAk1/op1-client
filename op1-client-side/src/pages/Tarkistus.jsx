@@ -115,7 +115,7 @@ function Tarkistus() {
         </label>
         <input type='button' value='Etsi' onClick={etsi} />
 
-      {lippu && <div>
+      {lippu && lippu != null ? ( <div>
         LippuId: {lippu.lippuId} <br />
         Tapahtuman nimi: {lippu.tapahtuma.nimi}<br />
         Hintaluokka: {lippu.hinnasto.hintaluokka} <br />
@@ -123,7 +123,11 @@ function Tarkistus() {
         Käytetty: {lippu.kaytetty.toString()} <br/>
         <button onClick={kaytaLippu}>Merkitse käytetyksi</button>
         <button onClick={eikaytaLippu}>ei käytä</button>
-        </div>}
+        </div>
+        ) : (
+          <p>Ei saatavilla tietoja maksua varten.</p>
+      )
+        }
     </>
   );
 }
