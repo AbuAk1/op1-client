@@ -1,20 +1,116 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 
+import { Button } from '@mui/material';
+import { Box } from '@mui/material';
+import { Typography } from '@mui/material';
+
+import ticketCheckImage from '../images/ticketcheck.jpg'; 
+import myyntiImage from '../images/myyntibutton.jpg'; 
+
 
 function Home() {
 
     const navigate = useNavigate();
+    const logOut = () => {
+        localStorage.removeItem('token');
+        navigate(-1);
+    }
 
     return (
 
         <>
-            <div>Home</div>
-            <button  onClick={()=>navigate("/tarkistus")} >Siiry Tarkistukseen</button>
-            <button  onClick={()=>navigate("/myynti")} >Siiry Myyntiin</button>
-
-
-
+            <Typography variant='h3' sx={{ textAlign: 'center' }} gutterBottom >Home</Typography>
+            <Button 
+                variant="contained" 
+                onClick={logOut} 
+                sx={{ 
+                    position: 'fixed', 
+                    top: 16,
+                    left: 16,
+                    marginBottom: 2, 
+                    zIndex: 100, 
+                    borderRadius: '8px', 
+                }}
+            >
+                Kirjaudu ulos
+            </Button>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                    onClick={() => navigate("/tarkistus")}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '400px',
+                        height: '350px',
+                        backgroundImage: `url(${ticketCheckImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        position: 'relative',
+                        color: 'white',
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        '&:hover': {
+                            opacity: 0.9,
+                        },
+                    }}
+                >
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Himmentää taustan
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        Siirry Tarkistukseen
+                    </Box>
+                </Button>
+                <Button
+                    onClick={() => navigate("/myynti")}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '400px',
+                        height: '350px',
+                        backgroundImage: `url(${myyntiImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        position: 'relative',
+                        color: 'white',
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        '&:hover': {
+                            opacity: 0.9,
+                        },
+                    }}
+                >
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Himmentää taustan
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        Siirry Myyntiin
+                    </Box>
+                </Button>
+            </Box>
         </>
     )
 }

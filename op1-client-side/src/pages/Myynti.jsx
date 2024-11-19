@@ -1,211 +1,316 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import {
+    Button,
+    TextField,
+    Typography,
+    Box,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Card,
+    CardContent,
+    CardActions,
+    Modal,
+    Table,
+    TableBody,
+    TableCell,
+    TableRow,
+    TableHead
+    
+} from '@mui/material';
 
 function Myynti() {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     const [tapahtumat, setTapahtumat] = useState(null);
-    const [openDropdown, setOpenDropdown] = useState(null); // Dropdown-tila
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedTapahtuma, setSelectedTapahtuma] = useState(null);
     const [hinnastot, setHinnastot] = useState([]);
-
+    const [selectedHintaluokka, setSelectedHintaluokka] = useState('');
     const [lisatytLiput, setLisatytLiput] = useState([]);
 
+    const navigate = useNavigate();
 
-
-
-    //haetapahtumat
     const haeTapahtumat = async () => {
         try {
             const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat`,
+                'https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
                 {
-                    method: "GET",
+                    method: 'GET',
                     headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
                 }
             );
             if (response.ok) {
                 const data = await response.json();
                 setTapahtumat(data);
-                // console.log(data)
+                
             } else {
-                console.error("Virhe lipun haussa");
-                setTapahtumat(null);
+                console.error('Virhe tapahtumien haussa');
             }
         } catch (error) {
-            console.error("Virhe pyynnön aikana:", error);
-            setTapahtumat(null);
+            console.error('Virhe pyynnön aikana:', error);
         }
     };
 
-    //dropdown
-    const toggleDropdown = (index) => {
-        setOpenDropdown(openDropdown === index ? null : index);
-    };
-
-
-    const [formData, setFormData] = useState({
-        tapahtuma: { tapahtumaId: '' },
-        hinnasto: { hinnastoid: '' },
-        maksutapahtuma: { maksutapahtumaId: '' }
-    });
-
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        const [section, field] = name.split('.');
-
-        setFormData((prevData) => ({
-            ...prevData,
-            [section]: {
-                ...prevData[section],
-                [field]: value,
-            }
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-
-
-        const formData = new FormData(e.target); // K
-        const json = Object.fromEntries(formData.entries()); // Muutetaan JSON-muotoon.
-
-        console.log(json)
-
-
-        // Lisää uusi JSON-objekti lippulistaan
-        setLisatytLiput((prevLippulista) => [...prevLippulista, json]);
-
-    };
-
-
-    const haeHinnastot = async (tapahtuma_id) => {
+    const haeHinnastot = async (tapahtumaId) => {
         try {
             const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtuma_id}/hinnastot`,
+                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/hinnastot`,
                 {
-                    method: "GET",
+                    method: 'GET',
                     headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
                 }
             );
             if (response.ok) {
                 const data = await response.json();
                 setHinnastot(data);
-                // console.log(data)
             } else {
-                console.error("Virhe lipun haussa");
-                setHinnastot(null);
+                console.error('Virhe hinnastojen haussa');
             }
         } catch (error) {
-            console.error("Virhe pyynnön aikana:", error);
-            setHinnastot(null);
+            console.error('Virhe pyynnön aikana:', error);
         }
     };
 
-    const navigate = useNavigate();
+    const haeYksiHinnasto = async (hinnastoId) => {
+        try {
+            const response = await fetch(
+                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot/${hinnastoId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+                
+            } else {
+                console.error('Virhe hinnastojen haussa');
+                return null;
+            }
+        } catch (error) {
+            console.error('Virhe pyynnön aikana:', error);
+            return null;
+        }
+    };
+
+    const avaaModal = (tapahtuma) => {
+        setSelectedTapahtuma(tapahtuma);
+        setSelectedHintaluokka('');
+        haeHinnastot(tapahtuma.tapahtumaId);
+        setModalOpen(true);
+    };
+
+    const suljeModal = () => {
+        setModalOpen(false);
+        setSelectedTapahtuma(null);
+        setHinnastot([]);
+    };
+
+    const lisaaLippu = async () => {
+    
+        if (!selectedHintaluokka) {
+            alert('Valitse hintaluokka ennen lisäämistä!');
+            return;
+        }
+    
+        // Odota hinnan saamista asynkronisesti
+        const hintaTiedot = await haeYksiHinnasto(selectedHintaluokka);
+    
+        if (hintaTiedot === null) {
+            alert('Hinnan hakeminen epäonnistui!');
+            return;
+        }
+    
+        // Luo uusi lippu objektin, kun hinta on saatu
+        const uusiLippu = {
+            tapahtumaId: selectedTapahtuma.tapahtumaId,
+            tapahtuma: selectedTapahtuma.nimi,
+            hinnastoId: selectedHintaluokka,
+            hinta: hintaTiedot.hinta,
+            hintaluokka: hintaTiedot.hintaluokka,
+        };
+    
+        setLisatytLiput((prev) => [...prev, uusiLippu]);
+        suljeModal();
+    };
+    
+
+    const poistaLippu = (index) => {
+        setLisatytLiput((prevLiput) => prevLiput.filter((_, i) => i !== index));
+    };
 
     const siirryMaksuun = () => {
-
-        console.log(lisatytLiput)
-
-        navigate("/maksu", { state: { lisatytLiput } });
-    }
-
+        navigate('/maksu', { state: { lisatytLiput } });
+    };
 
     return (
-        <>
-            <button onClick={haeTapahtumat}>Hae tapahtumat</button>
+        <Box sx={{ p: 3 }}>
+            <Button variant="contained" color="primary" onClick={() => navigate(-1)} sx={{ mr: 1 }}>
+                Takaisin
+            </Button>
+            <Button variant="contained" color="primary" onClick={haeTapahtumat}>
+                Hae tapahtumat
+            </Button>
+    
             {tapahtumat && (
-                <div className="event-list">
-                    {tapahtumat.map((tap, index) => (
-                        <div key={index} className="event-box">
-                            <div className="event-details">
-                                <p>
-                                    <strong>Tapahtuma:</strong> {tap.nimi}<br />
-                                    <strong>Ajankohta:</strong> {tap.aika}<br />
-                                    <strong>Paikka:</strong> {tap.paikka}<br />
-                                    <strong>Kuvaus:</strong> {tap.kuvaus}<br />
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 4 }}>
+                    {tapahtumat.map((tap) => (
+                        <Card key={tap.tapahtumaId} sx={{ width: 320, mb: 2, padding: '30px', borderRadius: '20px' }}>
+                            <CardContent>
+                                <Typography variant="h6" gutterBottom>
+                                    {tap.nimi}
+                                </Typography>
+                                <Typography>
+                                    <strong>Ajankohta:</strong> {tap.aika}
+                                </Typography>
+                                <Typography>
+                                    <strong>Paikka:</strong> {tap.paikka}
+                                </Typography>
+                                <Typography>
+                                    <strong>Kuvaus:</strong> {tap.kuvaus}
+                                </Typography>
+                                <Typography>
                                     <strong>Ennakkomyynti päättyy:</strong> {tap.ennakkomyynti}
-                                </p>
-                            </div>
-                            <div className="event-action">
-                                <button onClick={() => toggleDropdown(index)}>Myy lippuja</button>
-                                {openDropdown === index && (
-
-                                    <div className="dropdown">
-                                        <p>Myyntinäkymä tulossa...</p>
-                                        <form onSubmit={handleSubmit}>
-                                            <div style={{ display: 'none' }}>
-                                                <label>Tapahtuma ID:</label>
-                                                <input
-                                                    type="number"
-                                                    name="tapahtuma.tapahtumaId"
-                                                    value={tap.tapahtumaId}  // Käytetään vain tap.tapahtumaId arvoa
-                                                    onChange={(e) => handleChange(e)}  // Jos haluat päivittää formDataa, mutta et kenttää
-                                                />
-                                            </div>
-                                            <div>
-                                                <label>Hintaluokka:</label>
-                                                <select
-                                                    name="hinnasto.hinnastoid"
-                                                    value={formData.hinnasto.hinnastoid}
-                                                    onChange={(e) => handleChange(e)}
-                                                    onClick={() => haeHinnastot(tap.tapahtumaId)} // Hakee hinnastot
-                                                >
-                                                    <option value="" disabled>Valitse hintaluokka</option>
-                                                    {hinnastot &&
-                                                        hinnastot.map((hinnasto) => (
-                                                            <option key={hinnasto.hinnastoid} value={hinnasto.hinnastoid}>
-                                                                {hinnasto.hintaluokka} {hinnasto.hinta} €
-                                                            </option>
-                                                        ))}
-                                                </select>
-                                            </div>
-                                            <div style={{ display: 'none' }}>
-                                                <label>Maksutapahtuma ID:</label>
-                                                <input
-                                                    
-                                                    type="number"
-                                                    name="maksutapahtuma.maksutapahtumaId"
-                                                    value={formData.maksutapahtuma.maksutapahtumaId}
-                                                    onChange={handleChange}
-                                                />
-                                            </div>
-                                            {/* <button type="button" onClick={lisaaLippu}>Lisää lippu</button> */}
-
-                                            <button type="submit">Lisää lippu</button>
-
-
-                                         
-
-                                            
-                                        </form>
-                                        <h3>Lisätyt tiedot:</h3>
-                                            <ul>
-                                                {lisatytLiput.map((lippu, index) => (
-                                                    <li key={index}>
-                                                        Lippu: TapahtumaID: {lippu['tapahtuma.tapahtumaId'] || "Ei tapahtumaId"} ,
-                                                        Hinnastoid: {lippu['hinnasto.hinnastoid'] || "Ei hinnastoid"},
-                                                        {/* Maksutapahtumaid: {lippu['tapahtuma.maksutapahtumaId'] || "Ei maksutapahtumaID"} */}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        <button type='button' onClick={siirryMaksuun}>Siirry Maksuun</button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                                </Typography>
+                                <Typography>
+                                    <strong>Lippumäärä</strong> {tap.lippumaara}
+                                </Typography>
+                            </CardContent>
+                            <CardActions>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => avaaModal(tap)}
+                                >
+                                    Myy lippuja
+                                </Button>
+                            </CardActions>
+                        </Card>
                     ))}
-                </div>
+                </Box>
             )}
-        </>
+    
+            {/* Modal */}
+            <Modal open={modalOpen} onClose={suljeModal}>
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 400,
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                    }}
+                >
+                    <Typography variant="h6" gutterBottom>
+                        {selectedTapahtuma?.nimi}
+                    </Typography>
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                        <InputLabel>Hintaluokka</InputLabel>
+                        <Select
+                            value={selectedHintaluokka}
+                            onChange={(e) => setSelectedHintaluokka(e.target.value)}
+                        >
+                            <MenuItem value="" disabled>
+                                Valitse hintaluokka
+                            </MenuItem>
+                            {hinnastot.map((h) => (
+                                <MenuItem key={h.hinnastoid} value={h.hinnastoid}>
+                                    {h.hintaluokka} - {h.hinta} €
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={lisaaLippu}
+                        fullWidth
+                    >
+                        Lisää lippu
+                    </Button>
+                </Box>
+            </Modal>
+    
+            {/* Ostoskori */}
+            {lisatytLiput.length > 0 && (
+            <Box
+                sx={{
+                    mt: 4,
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    width: '100%',
+                    bgcolor: 'background.paper',
+                    boxShadow: 3,
+                    p: 2,
+                    maxHeight: '200px',
+                    overflow: 'auto',
+                    zIndex: 20, // Varmistaa, että ostoskori näkyy muiden elementtien päällä
+                }}
+            >
+                <Typography variant="h6">Ostoskori</Typography>
+                <Table sx={{ width: "100%" }}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell sx={{ padding: '4px 8px' }}>TapahtumaID</TableCell>
+                            <TableCell sx={{ padding: '4px 8px' }}>Tapahtuma</TableCell>
+                            <TableCell sx={{ padding: '4px 8px' }}>HinnastoID</TableCell>
+                            <TableCell sx={{ padding: '4px 8px' }}>Hinta</TableCell>
+                            <TableCell sx={{ padding: '4px 8px' }}>Hintaluokka</TableCell>
+                            <TableCell sx={{ padding: '4px 8px' }}></TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {lisatytLiput.map((lippu, index) => (
+                            <TableRow key={index}>
+                                <TableCell sx={{ padding: '4px 8px' }}>{lippu.tapahtumaId}</TableCell>
+                                <TableCell sx={{ padding: '4px 8px' }}>{lippu.tapahtuma}</TableCell>
+                                <TableCell sx={{ padding: '4px 8px' }}>{lippu.hinnastoId}</TableCell>
+                                <TableCell sx={{ padding: '4px 8px' }}>{lippu.hinta}</TableCell>
+                                <TableCell sx={{ padding: '4px 8px' }}>{lippu.hintaluokka}</TableCell>
+                                <TableCell sx={{ padding: '4px 8px' }}>
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        onClick={() => poistaLippu(index)}
+                                    >
+                                        Poista
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={siirryMaksuun}
+                    sx={{ mt: 2 }}
+                >
+                    Siirry maksamaan
+                </Button>
+            </Box>
+            )}
+
+        </Box>
     );
+    
 }
 
 export default Myynti;

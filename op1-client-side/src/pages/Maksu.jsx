@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Lippu } from "../components/Lippu";
 
+import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import { Box } from '@mui/material';
+import { Button } from '@mui/material';
+
 function Maksu() {
     const token = localStorage.getItem("token");
     const location = useLocation(); // Hook navigointidatan käyttöön
@@ -13,52 +17,81 @@ function Maksu() {
 
 
     const [liput, setLiput] = useState(lisatytLiput);
+    
 
 
     const [myydytLiput, setMyydytLiput] = useState([]);
 
-    
-
-
     const laskuta = async () => {
-
-        // alert("Ensi luodaan maksutapahtuma");
-        //  const maksutapahtuma = await luoUusiMaksutapahtuma();
-
-        console.log("tässä piätisi olla uuden maksutapahtuman id" + JSON.stringify(maksutapahtuma));
-
-        // console.log(maksutapahtuma)
-        // console.log(lisatytLiput)
-
-        if (maksutapahtuma) {
-
-        for (let i = 0; i < liput.length; i++) {
-            liput[i]["maksutapahtuma.maksutapahtumaId"] = maksutapahtuma;
+        // Luodaan uusi maksutapahtuma
+        const luoUusiMaksutapahtuma = async () => {
+            try {
+                const response = await fetch(
+                    `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            "kayttaja": {
+                                "kayttajaId": 1
+                            }
+                        })
+                    }
+                );
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    setMaksutapahtuma(data["maksutapahtumaId"]);
+                    console.log("Maksutapahtuma luotu:", data);
+                    return data["maksutapahtumaId"];  // Palautetaan ID, jotta tiedämme sen arvon
+                } else {
+                    const errorData = await response.json();
+                    console.error("Virhe maksutapahtuman luonnissa:", errorData);
+                    throw new Error("Maksutapahtumaa ei voitu luoda.");
+                }
+            } catch (error) {
+                console.error("Virhe pyynnön aikana:", error);
+                throw error; // Heitetään virhe edelleen eteenpäin
+            }
+        };
+    
+        // Luodaan maksutapahtuma ennen lipun käsittelyä ja odotetaan sen valmistumista
+        let uusiMaksutapahtuma;
+        try {
+            uusiMaksutapahtuma = await luoUusiMaksutapahtuma();  // Odotetaan maksutapahtuman luontia
+        } catch (error) {
+            alert("Maksutapahtumaa ei luotu error!");
+            return; // Lopetetaan laskutuksen suorittaminen, jos maksutapahtumaa ei voitu luoda
         }
+    
+        // Varmistetaan, että maksutapahtuma on luotu
+        if (!uusiMaksutapahtuma) {
+            alert("Maksutapahtumaa ei luotu!");
+            return;
+        }
+    
+        console.log("Uuden maksutapahtuman ID:", uusiMaksutapahtuma);
+    
+        // Muokataan liput oikealla maksutapahtuman ID:llä
         
-
-
-        console.log(liput)
-
         const muokatutLiput = liput.map(lippu => ({
             tapahtuma: {
-                tapahtumaId: parseInt(lippu["tapahtuma.tapahtumaId"])
+                tapahtumaId: parseInt(lippu["tapahtumaId"])
             },
             hinnasto: {
-                hinnastoid: parseInt(lippu["hinnasto.hinnastoid"])
+                hinnastoid: parseInt(lippu["hinnastoId"])
             },
             maksutapahtuma: {
-                maksutapahtumaId: parseInt(lippu["maksutapahtuma.maksutapahtumaId"])
+                maksutapahtumaId: parseInt(uusiMaksutapahtuma) // Käytetään luotua maksutapahtuman ID:tä
             }
         }));
-
-        //   console.log(muokatutLiput);
-
-
+    
+        // Lähetetään muokatut liput palvelimelle
         for (let i = 0; i < muokatutLiput.length; i++) {
-            console.log("toimmiiko" + muokatutLiput[i])
-            console.log("toimmiiko" + JSON.stringify(muokatutLiput[i]))
-
+            
             try {
                 const response = await fetch(
                     `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput`,
@@ -71,126 +104,87 @@ function Maksu() {
                         body: JSON.stringify(muokatutLiput[i]),
                     }
                 );
+    
                 if (response.ok) {
                     const data = await response.json();
                     setMyydytLiput(prevLiput => [...prevLiput, data]);
-
-                    // console.log(myydytLiput)
-                    console.log(data)
-
+                    console.log("Lippu myyty:", data);
                 } else {
-                    console.error("Virhe lipun haussa");
-
+                    console.error("Virhe lipun käsittelyssä");
                 }
             } catch (error) {
-                
                 console.error("Virhe pyynnön aikana:", error);
-
             }
         }
-    }
-
-    }
-
-
-    // console.log(myydytLiput[0])
-
-    // console.log(maksutapahtuma)
-
-    const luoUusiMaksutapahtuma = async () => {
-
-        try {
-            const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "kayttaja": {
-                            "kayttajaId": 1
-                        }
-                    }
-
-                    ),
-                }
-            );
-            if (response.ok) {
-                const data = await response.json();
-                setMaksutapahtuma(data["maksutapahtumaId"]);
-                console.log(data)
-            } else {
-                console.error("Virhe maksutapahtuman luonnissa");
-                // setMaksutapahtuma(null);
-            }
-        } catch (error) {
-            console.error("Virhe pyynnön aikana:", error);
-            // setMaksutapahtuma(null);
-        }
-
-    }
-
+    };
+    
 
     return (
-        <div>
+        <Box sx={{ padding: 2 }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+                Maksu
+            </Typography>
 
-            <h1>Maksu</h1>
-
-            <button onClick={() => navigate(-1)}>Takaisin</button>
-
+            <Button 
+                variant="contained" 
+                onClick={() => navigate(-1)} 
+                sx={{ 
+                    position: 'fixed', 
+                    top: 16,
+                    left: 16,
+                    marginBottom: 2, 
+                    zIndex: 100, 
+                    borderRadius: '8px', 
+                }}
+            >
+                Takaisin
+            </Button>
 
             {liput && liput.length > 0 ? (
-                <div>
-                    <h2>Lisätyt liput</h2>
-                    <ul>
-                        {liput.map((lippu, index) => (
-                            <li key={index}>
-                                <strong>Lippu {index + 1}:</strong>{" "}
-                                {Object.entries(lippu).map(([key, value]) => (
-                                    <div key={key}>
-                                        {key}: {value}
-                                    </div>
+                <TableContainer sx={{ mb: 2 }}>
+                    <Table stickyHeader>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Lippu</TableCell>
+                                {liput[0] && Object.keys(liput[0]).map((key) => (
+                                    <TableCell key={key}>{key}</TableCell>
                                 ))}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {liput.map((lippu, index) => (
+                                <TableRow hover key={index}>
+                                    <TableCell>{`Lippu ${index + 1}`}</TableCell>
+                                    {Object.entries(lippu).map(([key, value]) => (
+                                        <TableCell key={key}>{value}</TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             ) : (
-                <p>Ei saatavilla tietoja maksua varten.</p>
-            )} 
+                <Typography variant="body1">Ei saatavilla tietoja maksua varten.</Typography>
+            )}
 
-
-            <button onClick={luoUusiMaksutapahtuma}>Aloita Maksutapahtuma</button>
-            <button onClick={laskuta}>Laskuta ja tulosta liput</button>
+            <Button variant="contained" color="primary" onClick={laskuta} sx={{ marginBottom: 2 }}>
+                Laskuta ja tulosta liput
+            </Button>
 
             {myydytLiput.length > 0 ? (
-                <div>
-                    <p>lippuja myyty </p>
-
-                    {/* <LiputList myydytLiput={myydytLiput} /> */}
-
+                <Box>
+                    <Typography variant="h6" component="p">
+                        Lippuja myyty
+                    </Typography>
 
                     {myydytLiput.map((lippu) => (
-                        <Lippu lippu={lippu}/>
-                        // <ul key={lippu.lippuId}>
-                        //     LippuId: {lippu.lippuId} <br />
-                        //     Tapahtuman nimi: {lippu.tapahtuma.nimi}<br />
-                        //     Hintaluokka: {lippu.hinnasto.hintaluokka} <br />
-                        //     Lippumäärä: {lippu.maara}<br />
-                        //     Käytetty: {lippu.kaytetty.toString()} <br />
-                        // </ul>
+                        <Lippu key={lippu.lippuId} lippu={lippu} />
                     ))}
-
-
-
-
-
-                </div>
-            ) : <div>ei lippuja vielä myyty</div>}
-
-        </div>
+                </Box>
+            ) : (
+                <Typography variant="body1">Ei lippuja vielä myyty</Typography>
+            )}
+        </Box>
     );
 
 }

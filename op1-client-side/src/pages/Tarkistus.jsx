@@ -1,5 +1,8 @@
 import React from 'react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
+
+import { TextField, Button, Typography, Box, Alert } from '@mui/material';
 
 
 function Tarkistus() {
@@ -9,6 +12,10 @@ function Tarkistus() {
     const [lippuId, setLippuId] =  useState("");
 
     const [lippu , setLippu] = useState(null);
+
+    const [error, setError] = useState('');
+
+    const navigate = useNavigate();
   
     const etsi = async () => {
       console.log(lippunumero)
@@ -35,10 +42,12 @@ function Tarkistus() {
         } else {
           console.error("Virhe lipun haussa");
           setLippu(null); 
+          setError('Väärä koodi');
         }
       } catch (error) {
         console.error("Virhe pyynnön aikana:", error);
         setLippu(null);
+        setError('On tapahtunut virhe lipun haussa')
       }
     };
 
@@ -99,6 +108,7 @@ function Tarkistus() {
           setLippu(data);  
         } else {
           console.error("Virhe lipun haussa");
+          setError('virhe');
           setLippu(null); 
         }
       } catch (error) {
@@ -107,29 +117,87 @@ function Tarkistus() {
       }
     };
 
-  return (
-    <>
+    return (
+      <>
+        <Button
+          variant="contained"
+          onClick={() => navigate(-1)}
+          sx={{
+            position: 'fixed',
+            top: 16,
+            left: 16,
+            marginBottom: 2,
+            zIndex: 100,
+            borderRadius: '8px',
+          }}
+        >
+          Takaisin
+        </Button>
+  
+        <Box sx={{ marginBottom: 2 }}>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Anna lippunumero: <br></br>
+            1d779ffc-6f83-4d0e-bef1-eb288d85b883
+          </Typography>
+          <TextField
+            fullWidth
+            variant="outlined"
+            label="Lippunumero"
+            value={lippunumero}
+            onChange={(e) => setLippunumero(e.target.value)}
+          />
 
-        <label>Anna lippunumero
-          <input type='text' name='lippunumero'  onChange={e => setLippunumero(e.target.value)}/><br />
-        </label>
-        <input type='button' value='Etsi' onClick={etsi} />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={etsi}
+          sx={{ marginTop: 2 }}
+        >
+          Etsi
+        </Button>
 
-      {lippu && lippu != null ? ( <div>
-        LippuId: {lippu.lippuId} <br />
-        Tapahtuman nimi: {lippu.tapahtuma.nimi}<br />
-        Hintaluokka: {lippu.hinnasto.hintaluokka} <br />
-        Lippumäärä: {lippu.maara}<br />
-        Käytetty: {lippu.kaytetty.toString()} <br/>
-        <button onClick={kaytaLippu}>Merkitse käytetyksi</button>
-        <button onClick={eikaytaLippu}>ei käytä</button>
-        </div>
-        ) : (
-          <p>Ei saatavilla tietoja maksua varten.</p>
-      )
-        }
-    </>
-  );
+  
+          {lippu ? (
+            <div>
+              <Typography variant="body1">LippuId: {lippu.lippuId}</Typography>
+              <Typography variant="body1">
+                Tapahtuman nimi: {lippu.tapahtuma.nimi}
+              </Typography>
+              <Typography variant="body1">
+                Hintaluokka: {lippu.hinnasto.hintaluokka}
+              </Typography>
+              <Typography variant="body1">Lippumäärä: {lippu.maara}</Typography>
+              <Typography variant="body1">
+                Käytetty: {lippu.kaytetty.toString()}
+              </Typography>
+              <Box mt={2}>
+                <Button variant="contained" color="success" onClick={kaytaLippu}>
+                  Merkitse käytetyksi
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={eikaytaLippu}
+                  sx={{ marginLeft: 2 }}
+                >
+                  peruuta
+                </Button>
+              </Box>
+            </div>
+          ) : (
+            <Typography variant="body2" color="textSecondary" mt={3}>
+              Ei saatavilla tietoja maksua varten.
+            </Typography>
+          )}
+  
+          {error && (
+            <Typography variant="body2" color="error" mt={2}>
+              {error}
+            </Typography>
+          )}
+        </Box>
+      </>
+    );
 }
 
 export default Tarkistus
