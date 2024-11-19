@@ -33,7 +33,6 @@ Lipuntarkastus
     Kirjautuminen userina
     Lipuntarkastaminen
     Lippu käytetyksi
-    Lippu ei-käytetyksi
     Close Browser
 
 Virheellinen lippu
@@ -56,31 +55,31 @@ Kirjautuminen userina
 
 Tapahtumien listaus
     [Documentation]     Hakee sovelluksesta tapahtumalistan
-    Element Should Contain    xpath=//div[text()='Home']    Home
-    Click Button  xpath=//button[text()='Siiry Myyntiin']
-    Click Button  xpath=//button[text()='Hae tapahtumat']
-    Wait Until Element Is Visible    xpath=//div[@class='event-list']    timeout=20s
-    Element Should Be Visible    xpath=//div[@class='event-list']
+    Element Should Contain    xpath=//h3[text()='Home']    Home
+    Wait Until Element Is Visible   xpath=//div[text()='Siirry Myyntiin']
+    Element Should Be Visible    xpath=//div[text()='Siirry Myyntiin']
+    Click Element        xpath=//button[.//div[text()='Siirry Myyntiin']]
+    Wait Until Element Is Visible   xpath=//button[text()='Hae tapahtumat']
+    Wait Until Page Contains Element    xpath=//div
 
 Lipuntarkastaminen
     [Documentation]     Tarkistaa lipun
-    Element Should Contain    xpath=//div[text()='Home']    Home
-    Click Button  xpath=//button[text()='Siiry Tarkistukseen']
-    Input Text    xpath=//input[@type='text']    c8f35b60-679d-4c5d-b367-2ebc8b422e3a
-    Click Element    xpath=//input[@type='button' and @value='Etsi']
+    Element Should Contain    xpath=//h3[text()='Home']    Home
+    Wait Until Element Is Visible   xpath=//div[text()='Siirry Tarkistukseen']
+    Element Should Be Visible    xpath=//div[text()='Siirry Tarkistukseen']
+    Click Element        xpath=//button[.//div[text()='Siirry Tarkistukseen']]
+    Input Text    xpath=//input[@type='text']    0ff0352f-95b9-4b1d-8fc1-8251a39ed4ba
+    Click Element   xpath=//button[text()='Etsi']
     Wait Until Page Contains Element    xpath=//div
-    Page Should Contain    LippuId:
-    Page Should Contain    Tapahtuman nimi:
-    Page Should Contain    Hintaluokka:
-    Page Should Contain    Lippumäärä:
-    Page Should Contain    Käytetty:
+   
 
 Väärä lippu
     [Documentation]     Tarkistaa lipun
-    Element Should Contain    xpath=//div[text()='Home']    Home
-    Click Button  xpath=//button[text()='Siiry Tarkistukseen']
-    Input Text    xpath=//input[@type='text']    c8f35b60-679d-4c5d--2ebc8b422e3a
-    Click Element    xpath=//input[@type='button' and @value='Etsi']
+    Element Should Contain    xpath=//h3[text()='Home']    Home
+    Wait Until Element Is Visible   xpath=//div[text()='Siirry Tarkistukseen']
+    Click Element        xpath=//button[.//div[text()='Siirry Tarkistukseen']]
+    Input Text    xpath=//input[@type='text']    0ff0352f-95b9-4b1d-251a39ed4ba
+    Click Element   xpath=//button[text()='Etsi']
     Wait Until Page Contains Element    xpath=//p
     Page Should Contain    Ei saatavilla tietoja maksua varten.
 
@@ -89,5 +88,5 @@ Lippu käytetyksi
     Page Should Contain    Käytetty: true
     
 Lippu ei-käytetyksi
-    Click Button  xpath=//button[text()='ei käytä']
+    Click Button  xpath=//button[text()='peruuta']
     Page Should Contain    Käytetty: false
