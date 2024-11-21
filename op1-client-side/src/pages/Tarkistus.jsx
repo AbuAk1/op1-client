@@ -134,7 +134,7 @@ function Tarkistus() {
           Takaisin
         </Button>
   
-        <Box sx={{ marginBottom: 2 }}>
+        <Box sx={{ marginBottom: 2, maxWidth: '500px', m: 'auto' }}>
           <Typography variant="body1" sx={{ mb: 3 }}>
             Anna lippunumero: <br></br>
             1d779ffc-6f83-4d0e-bef1-eb288d85b883

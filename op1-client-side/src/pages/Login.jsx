@@ -17,6 +17,7 @@ const Login = () => {
       body.style.backgroundSize = 'cover';
       body.style.backgroundPosition = 'center';
       body.style.height = '100vh';
+      document.getElementById('root').style.padding = '0';
 
       return () => {
           // Palautetaan oletustyyli poistuessa
@@ -24,6 +25,7 @@ const Login = () => {
           body.style.backgroundSize = '';
           body.style.backgroundPosition = '';
           body.style.height = '';
+          document.getElementById('root').style.padding = '2rem';
       };
   }, []);
 

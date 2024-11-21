@@ -7,6 +7,7 @@ import { Typography } from '@mui/material';
 
 import ticketCheckImage from '../images/ticketcheck.jpg'; 
 import myyntiImage from '../images/myyntibutton.jpg'; 
+import hallintaImage from '../images/hallinta.jpg'; 
 
 
 function Home() {
@@ -20,7 +21,7 @@ function Home() {
     return (
 
         <>
-            <Typography variant='h3' sx={{ textAlign: 'center' }} gutterBottom >Home</Typography>
+            <Typography variant='h3' sx={{ textAlign: 'center', mb: 7 }}  >VALIKKO</Typography>
             <Button 
                 variant="contained" 
                 onClick={logOut} 
@@ -52,6 +53,7 @@ function Home() {
                         fontSize: '24px',
                         fontWeight: 'bold',
                         textTransform: 'none',
+                        borderRadius: 5,
                         '&:hover': {
                             opacity: 0.9,
                         },
@@ -68,6 +70,7 @@ function Home() {
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
+                            borderRadius: 5,
                         }}
                     >
                         Siirry Tarkistukseen
@@ -89,6 +92,7 @@ function Home() {
                         fontSize: '24px',
                         fontWeight: 'bold',
                         textTransform: 'none',
+                        borderRadius: 5,
                         '&:hover': {
                             opacity: 0.9,
                         },
@@ -105,6 +109,7 @@ function Home() {
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
+                            borderRadius: 5,
                         }}
                     >
                         Siirry Myyntiin
@@ -118,7 +123,7 @@ function Home() {
                         justifyContent: 'center',
                         width: '300px',
                         height: '350px',
-                        backgroundImage: `url(${myyntiImage})`,
+                        backgroundImage: `url(${hallintaImage})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         position: 'relative',
@@ -126,6 +131,7 @@ function Home() {
                         fontSize: '24px',
                         fontWeight: 'bold',
                         textTransform: 'none',
+                        borderRadius: 5,
                         '&:hover': {
                             opacity: 0.9,
                         },
@@ -142,6 +148,7 @@ function Home() {
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
+                            borderRadius: 5,
                         }}
                     >
                         Siirry Hallintaan

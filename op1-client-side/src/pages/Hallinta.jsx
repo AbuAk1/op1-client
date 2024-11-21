@@ -22,11 +22,21 @@ function Hallinta() {
     const [tapahtumat, setTapahtumat] = useState([]);
     const [tapahtuma, setTapahtuma] = useState('');
     const [modalOpen, setModalOpen] = useState(false);
+    const [tapahtumaModal, setTapahtumaModal] = useState(false);
     const [filteredTapahtumat, setFilteredTapahtumat] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [hinnastot, setHinnastot] = useState([]);
     const [hinnastoluokka, setHinnastoLuokka] = useState('');
     const [hinta, setHinta] = useState('');
+
+    const [uusiTapahtuma, setUusiTapahtuma] = useState({
+        nimi: "",
+        aika: "",
+        paikka: "",
+        kuvaus: "",
+        lippumaara: 0,
+        ennakkomyynti: ""
+    });
 
     const navigate = useNavigate();
 
@@ -68,10 +78,12 @@ function Hallinta() {
                 }
             );
             if (response.ok) {
-                const data = await response.json();
-                console.log(data);
+                // Poista tapahtuma filteredTapahtumat-taulukosta
+                setFilteredTapahtumat(prevFiltered => 
+                    prevFiltered.filter(tapahtuma => tapahtuma.tapahtumaId !== tapahtumaId)
+                );
+                alert('Tapahtuma poistettu');
             } else {
-                // Log the status code and response text if not successful
                 console.error(`Virhe tapahtumien haussa. Statuskoodi: ${response.status}`);
             }
         } catch (error) {
@@ -108,7 +120,6 @@ function Hallinta() {
         console.log(hinnastoId);
         
         try {
-            // Haetaan hinnaston id suoraan, ei käytetä indeksiä
             const response = await fetch(
                 `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot/${hinnastoId}`,
                 {
@@ -121,7 +132,12 @@ function Hallinta() {
             );
     
             if (response.ok) {
-                alert('hinnastoluokka poistettu');
+                // Poista hinnasto taulukosta
+                setHinnastot(prevHinnastot => 
+                    prevHinnastot.filter(item => item.hinnastoid !== hinnastoId)
+                );
+                alert('Hinnastoluokka poistettu');
+
             } else if (response.status === 404) {
                 // Jos hinnastoa ei löydy
                 alert('Hinnasto ei löytynyt tai on linkitetty lippuun.');
@@ -188,8 +204,6 @@ function Hallinta() {
         // Suoritetaan haeTapahtumat, kun komponentti ladataan
         haeTapahtumat();
     }, []);
-
-    //console.log(tapahtumat);
     
     
 
@@ -223,11 +237,69 @@ function Hallinta() {
         }
     };
 
-    useEffect(() => {
-        if (hinnastot.length > 0) {
-            console.log(hinnastot);
+    const avaaTapahtumaModal = () => {
+        setTapahtumaModal(true);
+    };
+
+    const tyhjennaTapahtumaKentat = () => {
+        setUusiTapahtuma({
+            nimi: "",
+            aika: "",
+            paikka: "",
+            kuvaus: "",
+            lippumaara: 0,
+            ennakkomyynti: ""
+        });
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setUusiTapahtuma((prevState) => {
+            const newState = { ...prevState, [name]: value };
+            return newState;
+        });
+    };
+
+    const luoUusiTaphtuma = async (uusiTapahtuma) => {
+        console.log('uusiTapahtuma ennen tarkistusta:', uusiTapahtuma);
+        if (!uusiTapahtuma) {
+            alert('Täytä kaikki kentät!');
+            return;
         }
-    }, [hinnastot]);
+        
+
+        try {
+            const response = await fetch(
+                'https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(uusiTapahtuma),
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Pyyntö onnistui:', data);
+                setFilteredTapahtumat((prevTapahtumat) => {
+                    return [...prevTapahtumat, data];
+                });
+
+                alert('Tapahtuma lisätty');
+                setTapahtumaModal(false);
+                tyhjennaTapahtumaKentat();
+            } else {
+                const errorData = await response.json();
+                console.error('Virhe tapahtuman lisäämisessä:', errorData);
+                alert(`Virhe tapahtuman lisäämisessä: ${errorData.message || 'Tuntematon virhe'}`);
+            }
+        } catch (error) {
+            console.error('Virhe pyynnön aikana:', error);
+        }
+    };
+    
     
     
     
@@ -235,7 +307,7 @@ function Hallinta() {
     return (
         <>
             <CssBaseline />
-            <Box display="flex" sx={{ height: '120vh', width: '100%', gap: 2 }}>
+            <Box display="flex" sx={{ height: '100vh', width: '100%', gap: 2 }}>
                 {/* Sidebar */}
                 <Box sx={{
                     width: { xs: '100%', md: '20%' },
@@ -244,11 +316,16 @@ function Hallinta() {
                     borderRadius: 6,
                     boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.3)',
                 }}>
-                    <Button variant="outlined" color="primary" onClick={() => navigate(-1)} sx={{ mb: 10 }} size='small'>
-                        Takaisin keskukseen
+                    <Button variant="outlined" color="primary" onClick={() => navigate(-1)} sx={{ mb: 5, mt: 2 }} size='small'>
+                        Takaisin Valikkoon
                     </Button>
-                    <Button variant="contained" color="primary" sx={{ mb: 1 }} size='small'>
-                        Lisää Tapahtuma
+                    <Button variant="contained" color="primary" sx={{ mb: 1 }} size='small'
+                    onClick={avaaTapahtumaModal}>
+                        Lisää Tapahtuma +
+                    </Button>
+                    <Button variant="contained" color="primary" sx={{ mb: 1 }} size='small'
+                        onClick={() => alert('Käyttäjien hallinta tulossa myöhemmin')}>
+                        Hallinnoi käyttäjiä
                     </Button>
                 </Box>
 
@@ -261,26 +338,30 @@ function Hallinta() {
                 }}>
                     {/* Etsi */}
                     <Box sx={{
+                        display: 'flex',
                         backgroundColor: '#f9f9f9',
-                        padding: 5,
-                        borderRadius: 6,
+                        padding: '40px 30px',
+                        borderRadius: 5,
                         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.3)',
+                        alignItems: 'center',
+                        gap: 2,
                     }}>
                         <TextField
                             label="Hae tapahtumaa nimellä"
                             variant="outlined"
                             fullWidth
-                            sx={{ mt: 2, mb: 2 }}
                             value={searchTerm}
                             onChange={handleSearchChange}
                         />
                         <Button
                             variant="contained"
                             onClick={clearSearch}
+                            sx={{ height: '100%', whiteSpace: 'nowrap', }} // Varmistaa, että nappi on saman korkuinen kuin hakukenttä
                         >
                             Poista haku
                         </Button>
                     </Box>
+
 
                     {/* Tapahtumat */}
                     <Box sx={{
@@ -299,7 +380,6 @@ function Hallinta() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell><b>Nimi</b></TableCell>
-                                            <TableCell><b>Kuvaus</b></TableCell>
                                             <TableCell><b>Toiminnot</b></TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -307,23 +387,31 @@ function Hallinta() {
                                         {filteredTapahtumat.map((tapahtuma) => (
                                             <TableRow key={tapahtuma.id}>
                                                 <TableCell>{tapahtuma.nimi}</TableCell>
-                                                <TableCell>{tapahtuma.kuvaus}</TableCell>
-                                                <TableCell sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                                <TableCell sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap' }}>
                                                     <Button
-                                                        variant="contained"
+                                                        variant="outlined"
+                                                        color="primary"
+                                                        onClick={() => alert('Muokkaus tulossa myöhemmin')}
+                                                        size="small"
+                                                    >
+                                                        Muokkaa
+                                                    </Button>
+                                                    <Button
+                                                        variant="outlined"
                                                         color="primary"
                                                         onClick={() => alert(`
                                                             Tapahtuma: ${tapahtuma.nimi}
                                                             Lippumäärä: ${tapahtuma.lippumaara}
                                                             Paikka: ${tapahtuma.paikka}
-                                                            Ennakkomyynti loppuu: ${tapahtuma.ennakkomyynti}
+                                                            Ennakkomyynti loppuu: 
+                                                            ${tapahtuma.ennakkomyynti}
                                                             `)}
                                                         size="small"
                                                     >
                                                         Lisätiedot
                                                     </Button>
                                                     <Button
-                                                        variant="contained"
+                                                        variant="outlined"
                                                         color="primary"
                                                         onClick={() => avaaHinnastoModal(tapahtuma.tapahtumaId)}
                                                         size="small"
@@ -332,7 +420,7 @@ function Hallinta() {
                                                     </Button>
                                                     <Button
                                                         variant="contained"
-                                                        color="primary"
+                                                        color="error"
                                                         onClick={() => poistaTapahtuma(tapahtuma.tapahtumaId)}
                                                         size="small"
                                                     >
@@ -351,7 +439,100 @@ function Hallinta() {
                 </Box>
             </Box>
 
-            {/* Hinnastomodal */}
+            {/*Tapahtuma modal*/}
+            <Modal
+                open={tapahtumaModal}
+                onClose={() => setTapahtumaModal(false)}
+            >
+                     <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    minWidth: '300px',
+                    height: '80%',
+                    margin: 'auto',
+                    bgcolor: 'white',
+                    borderRadius: 5,
+                    boxShadow: 24,
+                    padding: '40px 100px',
+                    gap: 3,
+                    overflow: 'auto',
+                    '&::-webkit-scrollbar': {
+                        display: 'none',
+                    },
+                }}>
+                    <Typography variant='h6' sx={{ mb: 2 }}>Uusi tapahtuma</Typography>
+                    <Box  
+                        sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '300px', margin: '0 auto' }}
+                    >
+                        <TextField
+                            label="Nimi"
+                            name="nimi"
+                            value={uusiTapahtuma.nimi}
+                            onChange={handleChange}
+                            variant="outlined"
+                            required
+                        />
+                        <TextField
+                            label="Aika"
+                            name="aika"
+                            type="date"
+                            value={uusiTapahtuma.aika}
+                            onChange={handleChange}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            variant="outlined"
+                            required
+                        />
+                        <TextField
+                            label="Paikka"
+                            name="paikka"
+                            value={uusiTapahtuma.paikka}
+                            onChange={handleChange}
+                            variant="outlined"
+                            required
+                        />
+                        <TextField
+                            label="Kuvaus"
+                            name="kuvaus"
+                            value={uusiTapahtuma.kuvaus}
+                            onChange={handleChange}
+                            multiline
+                            rows={4}
+                            variant="outlined"
+                            required
+                        />
+                        <TextField
+                            label="Lippumäärä"
+                            name="lippumaara"
+                            type="number"
+                            value={uusiTapahtuma.lippumaara}
+                            onChange={handleChange}
+                            variant="outlined"
+                            required
+                        />
+                        <TextField
+                            label="Ennakkovarauspäivä"
+                            name="ennakkomyynti"
+                            type="date"
+                            value={uusiTapahtuma.ennakkomyynti}
+                            onChange={handleChange}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            variant="outlined"
+                            required
+                        />
+                        <Button onClick={() => luoUusiTaphtuma(uusiTapahtuma)} variant="contained" color="primary">
+                            Tallenna tapahtuma
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
+
+            {/* Hinnasto modal */}
             <Modal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
@@ -372,6 +553,9 @@ function Hallinta() {
                     p: 5,
                     gap: 3,
                     overflow: 'auto',
+                    '&::-webkit-scrollbar': {
+                        display: 'none',
+                    },
                 }}>
                     {/* Nykyiset hinnastotiedot */}
                     <Box sx={{ overflowY: 'auto' }}>

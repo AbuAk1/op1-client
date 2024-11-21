@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Button,
@@ -23,7 +23,7 @@ import {
 
 function Myynti() {
     const token = localStorage.getItem('token');
-    const [tapahtumat, setTapahtumat] = useState(null);
+    const [tapahtumat, setTapahtumat] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedTapahtuma, setSelectedTapahtuma] = useState(null);
     const [hinnastot, setHinnastot] = useState([]);
@@ -31,6 +31,37 @@ function Myynti() {
     const [lisatytLiput, setLisatytLiput] = useState([]);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const lisaaMyydytLiput = async () => {
+            // Luodaan kopio tapahtumista
+            const tapahtumatKopio = [...tapahtumat];
+    
+            // Käydään läpi jokainen tapahtuma ja haetaan myydyt liput
+            const tapahtumatMyydyillaLipuilla = await Promise.all(
+                tapahtumatKopio.map(async (tapahtuma) => {
+                    // Tarkista, onko 'myydytLiput' jo olemassa
+                    if (tapahtuma.myydytLiput == null) {
+                        const myydytliput = await haeTapahtumanLiput(tapahtuma.tapahtumaId); // Hae liput
+                        return { ...tapahtuma, myydytLiput: myydytliput }; // Päivitä myydyt liput
+                    }
+                    return tapahtuma;
+                })
+            );
+    
+            // Päivitetään tapahtumat tilaan, jos ne ovat muuttuneet
+            if (JSON.stringify(tapahtumat) !== JSON.stringify(tapahtumatMyydyillaLipuilla)) {
+                setTapahtumat(tapahtumatMyydyillaLipuilla); // Päivitä tapahtumat tilaan
+            }
+    
+            // Loggaa päivitetyt tapahtumat
+            console.log(tapahtumatMyydyillaLipuilla);
+        };
+    
+        lisaaMyydytLiput();
+    }, [tapahtumat]); // Ajetaan aina, kun 'tapahtumat' muuttuu
+    
+    
 
     const haeTapahtumat = async () => {
         try {
@@ -105,6 +136,39 @@ function Myynti() {
         }
     };
 
+    const haeTapahtumanLiput = async (tapahtumaId) => {
+        try {
+            const response = await fetch(
+                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/liput`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+    
+            if (response.ok) {
+                const data = await response.json();
+                if (data.length > 0) {
+                    return data.length;
+                } else {
+                    alert('ei lippuja');
+                }
+    
+            } else {
+                return 0;
+            }
+        } catch (error) {
+            return 0;
+        }
+    };      
+    
+    useEffect(() => {
+        haeTapahtumanLiput(1);
+    })
+
     const avaaModal = (tapahtuma) => {
         setSelectedTapahtuma(tapahtuma);
         setSelectedHintaluokka('');
@@ -165,7 +229,7 @@ function Myynti() {
             </Button>
     
             {tapahtumat && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 4 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 4, mb: '200px' }}>
                     {tapahtumat.map((tap) => (
                         <Card key={tap.tapahtumaId} sx={{ width: 320, mb: 2, padding: '30px', borderRadius: '20px' }}>
                             <CardContent>
@@ -186,6 +250,9 @@ function Myynti() {
                                 </Typography>
                                 <Typography>
                                     <strong>Lippumäärä</strong> {tap.lippumaara}
+                                </Typography>
+                                <Typography>
+                                    <strong>Lippuja jäljellä</strong> {tap.lippumaara-tap.myydytLiput}
                                 </Typography>
                             </CardContent>
                             <CardActions>
