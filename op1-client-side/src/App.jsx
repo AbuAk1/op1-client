@@ -3,6 +3,7 @@ import Login from "./pages/Login"
 import Tarkistus from './pages/Tarkistus'
 import Myynti from './pages/Myynti'
 import Maksu from './pages/Maksu'
+import Hallinta from './pages/Hallinta'
 import {createBrowserRouter, RouterProvider,} from "react-router-dom";
 
 import Home from './pages/Home'
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: 'maksu',
     element: <Maksu />
+  },
+  {
+    path: 'hallinta',
+    element: <Hallinta />
   },
 ]);
 

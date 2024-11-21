@@ -35,14 +35,14 @@ function Home() {
             >
                 Kirjaudu ulos
             </Button>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                 <Button
                     onClick={() => navigate("/tarkistus")}
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: '400px',
+                        width: '300px',
                         height: '350px',
                         backgroundImage: `url(${ticketCheckImage})`,
                         backgroundSize: 'cover',
@@ -79,7 +79,7 @@ function Home() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: '400px',
+                        width: '300px',
                         height: '350px',
                         backgroundImage: `url(${myyntiImage})`,
                         backgroundSize: 'cover',
@@ -108,6 +108,43 @@ function Home() {
                         }}
                     >
                         Siirry Myyntiin
+                    </Box>
+                </Button>
+                <Button
+                    onClick={() => navigate("/Hallinta")}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '300px',
+                        height: '350px',
+                        backgroundImage: `url(${myyntiImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        position: 'relative',
+                        color: 'white',
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        '&:hover': {
+                            opacity: 0.9,
+                        },
+                    }}
+                >
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Himmentää taustan
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        Siirry Hallintaan
                     </Box>
                 </Button>
             </Box>

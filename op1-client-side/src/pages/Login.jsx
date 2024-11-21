@@ -65,6 +65,7 @@ const Login = () => {
           <Box
               sx={{
                   width: '50%',
+                  maxWidth: '300px',
                   height: 300,
                   borderRadius: '10px 0 0 10px', 
                   marginRight: 0,
@@ -86,6 +87,7 @@ const Login = () => {
           <Box
               sx={{
                   width: '50%',
+                  maxWidth: '300px',
                   padding: 4,
                   boxShadow: 3,
                   borderRadius: '0 10px 10px 0', 
