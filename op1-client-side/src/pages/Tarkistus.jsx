@@ -26,7 +26,7 @@ function Tarkistus() {
 
         // console.log(token);
 
-        const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/koodi/${lippunumero}`, {
+        const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/koodi/${lippunumero}`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -59,7 +59,7 @@ function Tarkistus() {
           // console.log(token);
           console.log(lippuId);
 
-          const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
+          const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
             method: "PATCH",
             headers: {
               "Authorization": `Bearer ${token}`, 
@@ -93,7 +93,7 @@ function Tarkistus() {
         // console.log(token);
         console.log(lippuId);
 
-        const response = await fetch(`https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
+        const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
           method: "PATCH",
           headers: {
             "Authorization": `Bearer ${token}`, 
