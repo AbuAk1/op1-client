@@ -40,10 +40,20 @@ function Hallinta() {
 
     const navigate = useNavigate();
 
+    const role = localStorage.getItem('role');
+
+    useEffect(() => {
+        // Jos käyttäjä ei ole admin ohjataan takaisin home-sivulle
+        if (role !== 'ADMIN') {
+            navigate("/home"); 
+        }
+    }, []);
+
+
     const haeTapahtumat = async () => {
         try {
             const response = await fetch(
-                'https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
+                'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
                 {
                     method: 'GET',
                     headers: {
@@ -68,7 +78,7 @@ function Hallinta() {
         console.log(tapahtumaId);
         try {
             const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}`,
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}`,
                 {
                     method: 'DELETE',
                     headers: {
@@ -96,7 +106,7 @@ function Hallinta() {
         
         try {
             const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/hinnastot`,
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/hinnastot`,
                 {
                     method: 'GET',
                     headers: {
@@ -121,7 +131,7 @@ function Hallinta() {
         
         try {
             const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot/${hinnastoId}`,
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot/${hinnastoId}`,
                 {
                     method: 'DELETE',
                     headers: {
@@ -170,7 +180,7 @@ function Hallinta() {
 
         try {
             const response = await fetch(
-                'https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot',
+                'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot',
                 {
                     method: 'POST',
                     headers: {
@@ -270,7 +280,7 @@ function Hallinta() {
 
         try {
             const response = await fetch(
-                'https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
+                'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
                 {
                     method: 'POST',
                     headers: {
