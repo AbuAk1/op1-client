@@ -66,7 +66,7 @@ function Myynti() {
     const haeTapahtumat = async () => {
         try {
             const response = await fetch(
-                'https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
+                'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
                 {
                     method: 'GET',
                     headers: {
@@ -90,7 +90,7 @@ function Myynti() {
     const haeHinnastot = async (tapahtumaId) => {
         try {
             const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/hinnastot`,
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/hinnastot`,
                 {
                     method: 'GET',
                     headers: {
@@ -113,7 +113,7 @@ function Myynti() {
     const haeYksiHinnasto = async (hinnastoId) => {
         try {
             const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot/${hinnastoId}`,
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot/${hinnastoId}`,
                 {
                     method: 'GET',
                     headers: {
@@ -139,7 +139,7 @@ function Myynti() {
     const haeTapahtumanLiput = async (tapahtumaId) => {
         try {
             const response = await fetch(
-                `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/liput`,
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/liput`,
                 {
                     method: 'GET',
                     headers: {
@@ -183,7 +183,12 @@ function Myynti() {
     };
 
     const lisaaLippu = async () => {
+
     
+       if(selectedTapahtuma.lippumaara - lisatytLiput.length == 0) {
+            return;
+        }
+
         if (!selectedHintaluokka) {
             alert('Valitse hintaluokka ennen lisäämistä!');
             return;
@@ -256,7 +261,9 @@ function Myynti() {
                                 </Typography>
                             </CardContent>
                             <CardActions>
+
                                 <Button
+                                    disabled={tap.lippumaara-tap.myydytLiput <= 0}
                                     variant="outlined"
                                     onClick={() => avaaModal(tap)}
                                 >
@@ -302,6 +309,8 @@ function Myynti() {
                             ))}
                         </Select>
                     </FormControl>
+                    {selectedTapahtuma && selectedTapahtuma.lippumaara - lisatytLiput.length == 0 && (
+                     <Typography variant="h6" gutterBottom color="error">Liput ovat loppuunmyyty</Typography>      )}
                     <Button
                         variant="contained"
                         color="secondary"

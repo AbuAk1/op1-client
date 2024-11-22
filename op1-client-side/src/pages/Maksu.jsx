@@ -14,12 +14,11 @@ function Maksu() {
     // Pääsy siirrettyyn dataan state-ominaisuudesta
     const { lisatytLiput } = location.state || {};
     const [maksutapahtuma, setMaksutapahtuma] = useState();
+    const [paymentCreated, setPaymentCreated] = useState(false);
 
 
     const [liput, setLiput] = useState(lisatytLiput);
     
-
-
     const [myydytLiput, setMyydytLiput] = useState([]);
 
     const laskuta = async () => {
@@ -27,7 +26,7 @@ function Maksu() {
         const luoUusiMaksutapahtuma = async () => {
             try {
                 const response = await fetch(
-                    `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat`,
+                    `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat`,
                     {
                         method: "POST",
                         headers: {
@@ -46,6 +45,7 @@ function Maksu() {
                     const data = await response.json();
                     setMaksutapahtuma(data["maksutapahtumaId"]);
                     console.log("Maksutapahtuma luotu:", data);
+                    setPaymentCreated(true);
                     return data["maksutapahtumaId"];  // Palautetaan ID, jotta tiedämme sen arvon
                 } else {
                     const errorData = await response.json();
@@ -94,7 +94,7 @@ function Maksu() {
             
             try {
                 const response = await fetch(
-                    `https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/liput`,
+                    `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput`,
                     {
                         method: "POST",
                         headers: {
@@ -167,7 +167,7 @@ function Maksu() {
                 <Typography variant="body1">Ei saatavilla tietoja maksua varten.</Typography>
             )}
 
-            <Button variant="contained" color="primary" onClick={laskuta} sx={{ marginBottom: 2 }}>
+            <Button disabled={paymentCreated} variant="contained" color="primary" onClick={laskuta} sx={{ marginBottom: 2 }}>
                 Laskuta ja tulosta liput
             </Button>
 
