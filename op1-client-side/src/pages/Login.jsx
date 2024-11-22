@@ -34,7 +34,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('https://ohjelmistoprojekti-1-git-develop-jigonre-ohjelmistoprojekti.2.rahtiapp.fi/api/login', {
+      const response = await fetch('https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
