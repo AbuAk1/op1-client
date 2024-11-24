@@ -260,7 +260,7 @@ function Myynti() {
                                     variant="outlined"
                                     onClick={() => avaaModal(tap)}
                                 >
-                                    Myy lippuja test
+                                    Myy lippuja
                                 </Button>
                             </CardActions>
                         </Card>
