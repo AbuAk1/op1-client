@@ -17,9 +17,13 @@ import {
     TableBody,
     TableCell,
     TableRow,
-    TableHead
+    TableHead,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
     
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function Myynti() {
     const token = localStorage.getItem('token');
@@ -29,6 +33,9 @@ function Myynti() {
     const [hinnastot, setHinnastot] = useState([]);
     const [selectedHintaluokka, setSelectedHintaluokka] = useState('');
     const [lisatytLiput, setLisatytLiput] = useState([]);
+    const [maksutapahtumat, setMaksutapahtumat] = useState([]);
+    const [liput, setLiput] = useState([]);
+    const [maksutapahtumanLiput, setMaksutapahtumanLiput] = useState({});
 
     const navigate = useNavigate();
 
@@ -64,6 +71,9 @@ function Myynti() {
     
 
     const haeTapahtumat = async () => {
+
+        setMaksutapahtumat([])
+
         try {
             const response = await fetch(
                 'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
@@ -224,19 +234,172 @@ function Myynti() {
         navigate('/maksu', { state: { lisatytLiput } });
     };
 
+    const haeMaksutapahtumat = async () => {
+
+        setTapahtumat([])
+
+        try {
+            const response = await fetch(
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Maksutapahtumat haettu", data);
+                const suodatetutTapahtumat = data.filter((tapahtuma) => !tapahtuma.removed);
+                setMaksutapahtumat(suodatetutTapahtumat);
+                await haeLiput();
+            } else {
+                const errorData = await response.json();
+                console.error("Virhe maksutapahtumien haussa", errorData)
+                throw new Error("Maksutapahtumia ei voida noutaa.");
+            }
+        } catch (error) {
+            console.error("Virhe maksutapahtumapyynnön aikana:", error);
+            throw error;
+        }
+    }
+
+    const haeLiput = async () => {
+        try {
+            const response = await fetch(
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+    
+            if (response.ok) {
+                const data = await response.json();
+                setLiput(data)
+                console.log("Liput haettu", data)
+            } else {
+                const errorData = await response.json();
+                console.error("Virhe lippujen haussa", errorData);
+                throw new Error("Lippuja ei voida noutaa.");
+            }
+        } catch (error) {
+            console.error("Virhe lippupyynnön aikana: ", error)
+            throw error;
+        }
+    };
+
+    const haeMaksutapahtumanLiput = async (id) => {
+
+        if (maksutapahtumanLiput[id]) {
+            return;
+        }
+
+        const suodatetutLiput = liput.filter((lippu) => 
+            lippu.maksutapahtuma && lippu.maksutapahtuma.maksutapahtumaId === id
+        );
+
+        setMaksutapahtumanLiput((prevState) => ({
+            ...prevState,
+            [id]: suodatetutLiput,
+        }));
+    }
+
+    const poistaMaksutapahtuma = async (id) => {
+
+        const confirmDelete = window.confirm("Haluatko varmasti poistaa maksutapahtuman lippuineen?");
+
+        if (!confirmDelete) {
+            console.log("Tapahtuman poisto peruttiin.");
+            return; 
+        }
+
+        try {
+            const response = await fetch(
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat/${id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+            });
+
+            if (response.ok) {
+                console.log("Maksutapahtuma poistettu id:llä", id);
+                await poistaMaksutapahtumanLiput(id);
+                await haeMaksutapahtumat();
+                setMaksutapahtumanLiput({});
+            } else {
+                const errorData = await response.json();
+                console.error("Virhe maksutapahtuman poistossa", errorData)
+                throw new Error("Maksutapahtumaa ei voida poistaa.");
+            }
+        } catch (error) {
+            console.error("Virhe maksutapahtuman poistopyynnön aikana:", error);
+            throw error;
+        }
+
+    }
+
+    const poistaMaksutapahtumanLiput = async (id) => {
+
+        await haeMaksutapahtumanLiput(id);
+
+        if (!maksutapahtumanLiput[id] || maksutapahtumanLiput[id].length === 0) {
+            console.log("Ei lippuja poistettavaksi.");
+            return;
+        }
+
+        for (const lippu of maksutapahtumanLiput[id]) {
+
+        try {
+            const response = await fetch(
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/softdelete/${lippu.lippuId}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+            });
+
+            if (response.ok) {
+                console.log("Lippu poistettu id:llä", lippu.lippuId);
+            } else {
+                const errorData = await response.json();
+                console.error("Virhe lipun poistossa", errorData)
+                throw new Error("Lippua ei voida poistaa.");
+            }
+        } catch (error) {
+            console.error("Virhe lipun poistopyynnön aikana:", error);
+            throw error;
+        }
+        }
+
+    }
+
     return (
         <Box sx={{ p: 3 }}>
             <Button variant="contained" color="primary" onClick={() => navigate(-1)} sx={{ mr: 1 }}>
                 Takaisin
             </Button>
-            <Button variant="contained" color="primary" onClick={haeTapahtumat}>
+            <Button variant="contained" color="primary" onClick={haeTapahtumat} sx={{ mr: 1 }}>
                 Hae tapahtumat
+            </Button>
+            <Button variant="contained" color="primary" onClick={haeMaksutapahtumat}>
+                Hae maksutapahtumat
             </Button>
     
             {tapahtumat && (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 4, mb: '200px' }}>
                     {tapahtumat.map((tap) => (
-                        <Card key={tap.tapahtumaId} sx={{ width: 320, mb: 2, padding: '30px', borderRadius: '20px' }}>
+                        <Card key={tap.tapahtumaId} sx={{ width: 320, mb: 2, padding: '30px', borderRadius: '20px'}}>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>
                                     {tap.nimi}
@@ -272,6 +435,62 @@ function Myynti() {
                             </CardActions>
                         </Card>
                     ))}
+                </Box>
+            )}
+
+            {maksutapahtumat && (
+                <Box sx={{marginTop: -25, display: 'flex', flexWrap: 'wrap',}}> 
+                    {maksutapahtumat.map((maksu) => (
+                        <Card key={maksu.maksutapahtumaId} sx={{margin: 3, borderRadius: 5, padding: 3, width: 500}}>
+                                <Typography variant="h6">
+                                    Maksutapahtuma {maksu.maksutapahtumaId}
+                                </Typography>
+                                <Typography>
+                                  <strong>  Aikaleima: </strong>{maksu.aikaleima}
+                                </Typography>
+                                <Typography>
+                                  <strong>Hinta: </strong> {maksu.hintayhteensa} €
+                                </Typography>
+                                <Typography>
+                                   <strong>Myyjä: </strong> {maksu.kayttaja.kayttajaId}
+                                </Typography>
+
+                                <Accordion sx={{margin: 2}}
+                                onChange={() => haeMaksutapahtumanLiput(maksu.maksutapahtumaId)}>
+                                    <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    >
+                                        <strong>Maksutapahtuman liput</strong>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        {maksutapahtumanLiput[maksu.maksutapahtumaId] ? (
+                                        maksutapahtumanLiput[maksu.maksutapahtumaId].length > 0 ? (
+                                        maksutapahtumanLiput[maksu.maksutapahtumaId].map((lippu) => (
+                                        <Typography key={lippu.lippuId}><strong>Lippu: </strong> {lippu.lippuId}, <strong>Hinta: </strong> {lippu.hinnasto.hinta} € {lippu.hinnasto.hintaluokka}, <strong>Tapahtuma: </strong>
+                                        {lippu.tapahtuma.nimi}</Typography>
+                                            ))
+                                        ) : (
+                                        <Typography>Ei lippuja saatavilla</Typography>
+                                            )
+                                        ) : (
+                                        <Typography>Loading...</Typography> 
+                                        )}
+                                    </AccordionDetails>
+
+                                </Accordion>
+                                
+
+                                <CardActions sx={{justifyContent: 'center'}}>
+                                    <Button
+                                    variant='contained'
+                                    sx={{backgroundColor: 'red', ":hover": {backgroundColor: 'darkred'}}}
+                                    onClick={() => poistaMaksutapahtuma(maksu.maksutapahtumaId)}>
+                                        Poista maksutapahtuma
+                                    </Button>
+                                </CardActions>
+                        </Card>
+                    ))}
+
                 </Box>
             )}
     
