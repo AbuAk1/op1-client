@@ -190,15 +190,21 @@ function Tarkistus() {
                 <Box mt={2}>
                     {lippu ? (
                         <div>
-                            <Typography variant='h5' sx={{ marginTop: 7, marginBottom: 1 }}>Aktiivisen lipun tiedot:</Typography>
+                            <Typography variant='h5' sx={{ marginTop: 7, marginBottom: 1 }}>Lipun tiedot:</Typography>
                             <Typography variant="body1">LippuId: {lippu.lippuId}</Typography>
                             <Typography variant="body1">Tapahtuman nimi: {lippu.tapahtuma.nimi}</Typography>
                             <Typography variant="body1">Tapahtuman ajankohta: {lippu.tapahtuma.aika}</Typography>
                             <Typography variant="body1">Hintaluokka: {lippu.hinnasto.hintaluokka}</Typography>
                             <Typography variant="body1">Käytetty: {lippu.kaytetty.toString()}</Typography>
 
+                            {lippu.kaytetty && (
+                                <Typography variant="body1" color="error" sx={{ fontWeight: 'bold', marginBottom: 5 }} mt={3}>
+                                    Tämä lippu on jo käytetty.
+                                </Typography>
+                            )}
+
                             {lippu.removed ? (
-                                <Typography variant="body2" color="error" mt={2}>
+                                <Typography variant="body2" color="error" mt={3}>
                                     Tämä lippu on poistettu tai palautettu, eikä sitä voi käyttää.
                                 </Typography>
                             ) : (
@@ -207,6 +213,7 @@ function Tarkistus() {
                                         variant="contained"
                                         color="success"
                                         onClick={kaytaLippu}
+                                        disabled={lippu.kaytetty} // Jos lippu on jo käytetty
                                     >
                                         Merkitse käytetyksi
                                     </Button>
