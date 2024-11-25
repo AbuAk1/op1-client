@@ -75,7 +75,6 @@ function Hallinta() {
     };
 
     const poistaTapahtuma = async (tapahtumaId) => {
-        console.log(tapahtumaId);
         try {
             const response = await fetch(
                 `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}`,
@@ -94,7 +93,7 @@ function Hallinta() {
                 );
                 alert('Tapahtuma poistettu');
             } else {
-                console.error(`Virhe tapahtumien haussa. Statuskoodi: ${response.status}`);
+                alert('Et voi poistaa tapahtumaa jossa on lippuja tai hinnastoja');
             }
         } catch (error) {
             console.error('Virhe pyynnön aikana:', error);
@@ -119,7 +118,7 @@ function Hallinta() {
                 const data = await response.json();
                 setHinnastot(data);
             } else {
-                console.error('Virhe hinnastojen haussa');
+                alert(response.status);
             }
         } catch (error) {
             console.error('Virhe pyynnön aikana:', error);
@@ -127,7 +126,6 @@ function Hallinta() {
     };
 
     const poistaHinnasto = async (hinnastoId) => {  
-        console.log(hinnastoId);
         
         try {
             const response = await fetch(
@@ -151,9 +149,11 @@ function Hallinta() {
             } else if (response.status === 404) {
                 // Jos hinnastoa ei löydy
                 alert('Hinnasto ei löytynyt tai on linkitetty lippuun.');
+            } else if (response.status === 410) {
+                // Jos poistettu (soft)
+                alert('Hinnasto poistettu käytöstä');
             } else if (response.status === 403) {
-                // Jos käyttäjällä ei ole oikeuksia
-                alert('Ei riittäviä oikeuksia hinnaston poistamiseen.');
+                alert('Sinulla ei ole oikeuksia poistamiseen');
             } else {
                 console.error('Virhe hinnaston poistossa');
                 alert('Virhe hinnaston poistossa');
@@ -271,11 +271,19 @@ function Hallinta() {
     };
 
     const luoUusiTaphtuma = async (uusiTapahtuma) => {
-        console.log('uusiTapahtuma ennen tarkistusta:', uusiTapahtuma);
-        if (!uusiTapahtuma) {
+        
+        if (
+            !uusiTapahtuma.nimi || 
+            !uusiTapahtuma.paikka || 
+            !uusiTapahtuma.kuvaus || 
+            !uusiTapahtuma.aika || 
+            !uusiTapahtuma.ennakkomyynti || 
+            lippumaara === 0
+        ) {
             alert('Täytä kaikki kentät!');
             return;
         }
+        
         
 
         try {
@@ -292,7 +300,6 @@ function Hallinta() {
             );
             if (response.ok) {
                 const data = await response.json();
-                console.log('Pyyntö onnistui:', data);
                 setFilteredTapahtumat((prevTapahtumat) => {
                     return [...prevTapahtumat, data];
                 });

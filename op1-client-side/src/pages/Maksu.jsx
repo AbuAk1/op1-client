@@ -18,6 +18,14 @@ function Maksu() {
 
 
     const [liput, setLiput] = useState(lisatytLiput);
+
+    let yhteishinta = 0;
+
+    liput.forEach(lippu => {
+        yhteishinta += lippu.hinta;
+    });
+    
+    
     
     const [myydytLiput, setMyydytLiput] = useState([]);
 
@@ -44,7 +52,6 @@ function Maksu() {
                 if (response.ok) {
                     const data = await response.json();
                     setMaksutapahtuma(data["maksutapahtumaId"]);
-                    console.log("Maksutapahtuma luotu:", data);
                     setPaymentCreated(true);
                     return data["maksutapahtumaId"];  // Palautetaan ID, jotta tiedämme sen arvon
                 } else {
@@ -72,8 +79,6 @@ function Maksu() {
             alert("Maksutapahtumaa ei luotu!");
             return;
         }
-    
-        console.log("Uuden maksutapahtuman ID:", uusiMaksutapahtuma);
     
         // Muokataan liput oikealla maksutapahtuman ID:llä
         
@@ -108,9 +113,8 @@ function Maksu() {
                 if (response.ok) {
                     const data = await response.json();
                     setMyydytLiput(prevLiput => [...prevLiput, data]);
-                    console.log("Lippu myyty:", data);
                 } else {
-                    console.error("Virhe lipun käsittelyssä");
+                    alert(response.status);
                 }
             } catch (error) {
                 console.error("Virhe pyynnön aikana:", error);
@@ -166,6 +170,10 @@ function Maksu() {
             ) : (
                 <Typography variant="body1">Ei saatavilla tietoja maksua varten.</Typography>
             )}
+
+            <Box>
+                <Typography sx={{ marginBottom: '30px' }}>Hinta yhteensä: <b style={{ fontSize: '20px' }}>{yhteishinta}€</b></Typography>
+            </Box>
 
             <Button disabled={paymentCreated} variant="contained" color="primary" onClick={laskuta} sx={{ marginBottom: 2 }}>
                 Laskuta ja tulosta liput
