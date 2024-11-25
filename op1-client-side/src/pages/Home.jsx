@@ -5,9 +5,9 @@ import { Button } from '@mui/material';
 import { Box } from '@mui/material';
 import { Typography } from '@mui/material';
 
-import ticketCheckImage from '../images/ticketcheck.jpg'; 
-import myyntiImage from '../images/myyntibutton.jpg'; 
-import hallintaImage from '../images/hallinta.jpg'; 
+import ticketCheckImage from '../images/ticketcheck.jpg';
+import myyntiImage from '../images/myyntibutton.jpg';
+import hallintaImage from '../images/hallinta.jpg';
 
 
 function Home() {
@@ -22,16 +22,16 @@ function Home() {
 
         <>
             <Typography variant='h3' sx={{ textAlign: 'center', mb: 7 }}  >VALIKKO</Typography>
-            <Button 
-                variant="contained" 
-                onClick={logOut} 
-                sx={{ 
-                    position: 'fixed', 
+            <Button
+                variant="contained"
+                onClick={logOut}
+                sx={{
+                    position: 'fixed',
                     top: 16,
                     left: 16,
-                    marginBottom: 2, 
-                    zIndex: 100, 
-                    borderRadius: '8px', 
+                    marginBottom: 2,
+                    zIndex: 100,
+                    borderRadius: '8px',
                 }}
             >
                 Kirjaudu ulos
