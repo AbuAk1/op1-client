@@ -60,15 +60,15 @@ function Myynti() {
             if (JSON.stringify(tapahtumat) !== JSON.stringify(tapahtumatMyydyillaLipuilla)) {
                 setTapahtumat(tapahtumatMyydyillaLipuilla); // Päivitä tapahtumat tilaan
             }
-    
-            // Loggaa päivitetyt tapahtumat
-            console.log(tapahtumatMyydyillaLipuilla);
         };
     
         lisaaMyydytLiput();
     }, [tapahtumat]); // Ajetaan aina, kun 'tapahtumat' muuttuu
     
-    
+    useEffect(() => {
+        console.log(tapahtumat);
+        
+    }, [tapahtumat])
 
     const haeTapahtumat = async () => {
 
@@ -384,6 +384,10 @@ function Myynti() {
 
     }
 
+    const tulostaLiput = async (id) => {
+
+    }
+
     return (
         <Box sx={{ p: 3 }}>
             <Button variant="contained" color="primary" onClick={() => navigate(-1)} sx={{ mr: 1 }}>
@@ -397,7 +401,7 @@ function Myynti() {
             </Button>
     
             {tapahtumat && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 4, mb: '200px' }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 4, mb: '200px', pb: '200px' }}>
                     {tapahtumat.map((tap) => (
                         <Card key={tap.tapahtumaId} sx={{ width: 320, mb: 2, padding: '30px', borderRadius: '20px'}}>
                             <CardContent>
@@ -431,6 +435,14 @@ function Myynti() {
                                     onClick={() => avaaModal(tap)}
                                 >
                                     Myy lippuja
+                                </Button>
+                                <Button
+                                    disabled={new Date(tap.ennakkomyynti) > new Date()}
+                                    variant="outlined"
+                                    onClick={() => tulostaLiput(tap)}
+                                    style={{ display: new Date(tap.ennakkomyynti) <= new Date() ? 'inline-block' : 'none' }}
+                                >
+                                    Printtaa loput liput
                                 </Button>
                             </CardActions>
                         </Card>
