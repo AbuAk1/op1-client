@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Lippu } from "../components/Lippu";
 
-import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { Box } from '@mui/material';
 import { Button } from '@mui/material';
 
@@ -24,9 +24,9 @@ function Maksu() {
     liput.forEach(lippu => {
         yhteishinta += lippu.hinta;
     });
-    
-    
-    
+
+
+
     const [myydytLiput, setMyydytLiput] = useState([]);
 
     const laskuta = async () => {
@@ -48,7 +48,7 @@ function Maksu() {
                         })
                     }
                 );
-    
+
                 if (response.ok) {
                     const data = await response.json();
                     setMaksutapahtuma(data["maksutapahtumaId"]);
@@ -64,7 +64,7 @@ function Maksu() {
                 throw error; // Heitetään virhe edelleen eteenpäin
             }
         };
-    
+
         // Luodaan maksutapahtuma ennen lipun käsittelyä ja odotetaan sen valmistumista
         let uusiMaksutapahtuma;
         try {
@@ -73,15 +73,15 @@ function Maksu() {
             alert("Maksutapahtumaa ei luotu error!");
             return; // Lopetetaan laskutuksen suorittaminen, jos maksutapahtumaa ei voitu luoda
         }
-    
+
         // Varmistetaan, että maksutapahtuma on luotu
         if (!uusiMaksutapahtuma) {
             alert("Maksutapahtumaa ei luotu!");
             return;
         }
-    
+
         // Muokataan liput oikealla maksutapahtuman ID:llä
-        
+
         const muokatutLiput = liput.map(lippu => ({
             tapahtuma: {
                 tapahtumaId: parseInt(lippu["tapahtumaId"])
@@ -93,10 +93,10 @@ function Maksu() {
                 maksutapahtumaId: parseInt(uusiMaksutapahtuma) // Käytetään luotua maksutapahtuman ID:tä
             }
         }));
-    
+
         // Lähetetään muokatut liput palvelimelle
         for (let i = 0; i < muokatutLiput.length; i++) {
-            
+
             try {
                 const response = await fetch(
                     `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput`,
@@ -109,7 +109,7 @@ function Maksu() {
                         body: JSON.stringify(muokatutLiput[i]),
                     }
                 );
-    
+
                 if (response.ok) {
                     const data = await response.json();
                     setMyydytLiput(prevLiput => [...prevLiput, data]);
@@ -121,7 +121,49 @@ function Maksu() {
             }
         }
     };
-    
+
+    const printRef = useRef();
+
+    const handlePrint = () => {
+        const printContents = printRef.current.innerHTML; // Vain tämä osio tulostetaan
+        const newWindow = window.open("", "_blank");
+        newWindow.document.write(`
+            <html>
+                <head>
+                    <title>Liput</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 0;
+                            padding: 0;
+                        }
+
+                        .print-container {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 20px;
+                            padding: 20px;
+                        }
+
+                        .print-item {
+                            border: 2px solid #000;
+                            padding: 20px;
+                            box-sizing: border-box;
+                            background-color: #fff;
+                            width: 100%;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-container">
+                        ${printContents}
+                    </div>
+                </body>
+            </html>
+        `);
+        newWindow.document.close();
+        newWindow.print();
+    };
 
     return (
         <Box sx={{ padding: 2 }}>
@@ -129,16 +171,16 @@ function Maksu() {
                 Maksu
             </Typography>
 
-            <Button 
-                variant="contained" 
-                onClick={() => navigate(-1)} 
-                sx={{ 
-                    position: 'fixed', 
+            <Button
+                variant="contained"
+                onClick={() => navigate(-1)}
+                sx={{
+                    position: 'fixed',
                     top: 16,
                     left: 16,
-                    marginBottom: 2, 
-                    zIndex: 100, 
-                    borderRadius: '8px', 
+                    marginBottom: 2,
+                    zIndex: 100,
+                    borderRadius: '8px',
                 }}
             >
                 Takaisin
@@ -180,14 +222,25 @@ function Maksu() {
             </Button>
 
             {myydytLiput.length > 0 ? (
-                <Box>
-                    <Typography variant="h6" component="p">
+                <Box >
+                    <Typography variant="h6" component="p" >
                         Lippuja myyty
                     </Typography>
-
-                    {myydytLiput.map((lippu) => (
-                        <Lippu key={lippu.lippuId} lippu={lippu} />
-                    ))}
+                    <div ref={printRef} className="print-container" >
+                        {myydytLiput.map((lippu) => (
+                            <div className="print-item" key={lippu.lippuId}>
+                                <Lippu lippu={lippu} />
+                            </div>
+                        ))}
+                    </div>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handlePrint}
+                        style={{ marginTop: "10px" }}
+                    >
+                        Tulosta kaikki liput
+                    </Button>
                 </Box>
             ) : (
                 <Typography variant="body1">Ei lippuja vielä myyty</Typography>
