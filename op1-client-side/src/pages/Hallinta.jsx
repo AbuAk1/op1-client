@@ -316,6 +316,47 @@ function Hallinta() {
                 alert('Tapahtuma lisätty');
                 setTapahtumaModal(false);
                 tyhjennaTapahtumaKentat();
+
+                //kun lisätty tapahtuma, lisätään ovimyynti hinta 0e
+
+                const hinnastoData = {
+                    tapahtuma: {
+                        tapahtumaId: data.tapahtumaId
+                    },
+                    hintaluokka: 'ovimyynti',
+                    hinta: parseFloat(1), 
+                };
+        
+                try {
+                    const response = await fetch(
+                        'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot',
+                        {
+                            method: 'POST',
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(hinnastoData),
+                        }
+                    );
+        
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Päivitetään hinnastot-tila
+                        setHinnastot((prevHinnastot) => {
+                            return [...prevHinnastot, data];  // Lisää uusi hinnasto edellisten perään
+                        });
+        
+                        alert('Ovimyynti hinta lisätty');
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Virhe hinnaston luomisessa:', errorData);
+                        alert('Virhe hinnaston luomisessa');
+                    }
+                } catch (error) {
+                    console.error('Virhe pyynnön aikana:', error);
+                    alert('Virhe yhteydessä palvelimeen');
+                }
             } else {
                 const errorData = await response.json();
                 console.error('Virhe tapahtuman lisäämisessä:', errorData);
@@ -381,10 +422,6 @@ function Hallinta() {
         }
     };
     
-    
-    
-    
-
     return (
         <>
             <CssBaseline />
