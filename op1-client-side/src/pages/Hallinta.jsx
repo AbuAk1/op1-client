@@ -21,6 +21,7 @@ function Hallinta() {
     const token = localStorage.getItem("token");
     const [tapahtumat, setTapahtumat] = useState([]);
     const [tapahtuma, setTapahtuma] = useState('');
+    const [muokattavaTapahtuma, setMuokattavaTapahtuma] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [tapahtumaModal, setTapahtumaModal] = useState(false);
     const [filteredTapahtumat, setFilteredTapahtumat] = useState([]);
@@ -30,6 +31,7 @@ function Hallinta() {
     const [hinta, setHinta] = useState('');
 
     const [uusiTapahtuma, setUusiTapahtuma] = useState({
+        id: "",
         nimi: "",
         aika: "",
         paikka: "",
@@ -75,7 +77,6 @@ function Hallinta() {
     };
 
     const poistaTapahtuma = async (tapahtumaId) => {
-        console.log(tapahtumaId);
         try {
             const response = await fetch(
                 `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}`,
@@ -94,7 +95,7 @@ function Hallinta() {
                 );
                 alert('Tapahtuma poistettu');
             } else {
-                console.error(`Virhe tapahtumien haussa. Statuskoodi: ${response.status}`);
+                alert('Et voi poistaa tapahtumaa jossa on lippuja tai hinnastoja');
             }
         } catch (error) {
             console.error('Virhe pyynnön aikana:', error);
@@ -118,8 +119,6 @@ function Hallinta() {
             if (response.ok) {
                 const data = await response.json();
                 setHinnastot(data);
-            } else {
-                console.error('Virhe hinnastojen haussa');
             }
         } catch (error) {
             console.error('Virhe pyynnön aikana:', error);
@@ -127,7 +126,6 @@ function Hallinta() {
     };
 
     const poistaHinnasto = async (hinnastoId) => {  
-        console.log(hinnastoId);
         
         try {
             const response = await fetch(
@@ -151,9 +149,11 @@ function Hallinta() {
             } else if (response.status === 404) {
                 // Jos hinnastoa ei löydy
                 alert('Hinnasto ei löytynyt tai on linkitetty lippuun.');
+            } else if (response.status === 410) {
+                // Jos poistettu (soft)
+                alert('Hinnasto poistettu käytöstä');
             } else if (response.status === 403) {
-                // Jos käyttäjällä ei ole oikeuksia
-                alert('Ei riittäviä oikeuksia hinnaston poistamiseen.');
+                alert('Sinulla ei ole oikeuksia poistamiseen');
             } else {
                 console.error('Virhe hinnaston poistossa');
                 alert('Virhe hinnaston poistossa');
@@ -214,6 +214,13 @@ function Hallinta() {
         // Suoritetaan haeTapahtumat, kun komponentti ladataan
         haeTapahtumat();
     }, []);
+
+
+    useEffect(() => {
+        if (muokattavaTapahtuma) {
+            setUusiTapahtuma(muokattavaTapahtuma);
+        }
+    }, [muokattavaTapahtuma]);
     
     
 
@@ -234,14 +241,14 @@ function Hallinta() {
     };
 
     const avaaHinnastoModal = async (tapahtumaId) => {
+        
         try {
+            setTapahtuma(tapahtumaId);
             // Haetaan hinnastot tapahtumalle
             await haeHinnastot(tapahtumaId);
             
-            
             // Avaa modalin, kun hinnastot on haettu
             setModalOpen(true);
-            setTapahtuma(tapahtumaId);
         } catch (error) {
             console.error('Virhe hinnastojen haussa', error);
         }
@@ -253,6 +260,7 @@ function Hallinta() {
 
     const tyhjennaTapahtumaKentat = () => {
         setUusiTapahtuma({
+            id: "",
             nimi: "",
             aika: "",
             paikka: "",
@@ -260,6 +268,7 @@ function Hallinta() {
             lippumaara: 0,
             ennakkomyynti: ""
         });
+        setMuokattavaTapahtuma(null);
     };
 
     const handleChange = (e) => {
@@ -271,11 +280,19 @@ function Hallinta() {
     };
 
     const luoUusiTaphtuma = async (uusiTapahtuma) => {
-        console.log('uusiTapahtuma ennen tarkistusta:', uusiTapahtuma);
-        if (!uusiTapahtuma) {
+        
+        if (
+            !uusiTapahtuma.nimi || 
+            !uusiTapahtuma.paikka || 
+            !uusiTapahtuma.kuvaus || 
+            !uusiTapahtuma.aika || 
+            !uusiTapahtuma.ennakkomyynti || 
+            uusiTapahtuma.lippumaara === 0
+        ) {
             alert('Täytä kaikki kentät!');
             return;
         }
+        
         
 
         try {
@@ -292,7 +309,6 @@ function Hallinta() {
             );
             if (response.ok) {
                 const data = await response.json();
-                console.log('Pyyntö onnistui:', data);
                 setFilteredTapahtumat((prevTapahtumat) => {
                     return [...prevTapahtumat, data];
                 });
@@ -300,6 +316,47 @@ function Hallinta() {
                 alert('Tapahtuma lisätty');
                 setTapahtumaModal(false);
                 tyhjennaTapahtumaKentat();
+
+                //kun lisätty tapahtuma, lisätään ovimyynti hinta 0e
+
+                const hinnastoData = {
+                    tapahtuma: {
+                        tapahtumaId: data.tapahtumaId
+                    },
+                    hintaluokka: 'ovimyynti',
+                    hinta: parseFloat(1), 
+                };
+        
+                try {
+                    const response = await fetch(
+                        'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot',
+                        {
+                            method: 'POST',
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(hinnastoData),
+                        }
+                    );
+        
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Päivitetään hinnastot-tila
+                        setHinnastot((prevHinnastot) => {
+                            return [...prevHinnastot, data];  // Lisää uusi hinnasto edellisten perään
+                        });
+        
+                        alert('Ovimyynti hinta lisätty');
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Virhe hinnaston luomisessa:', errorData);
+                        alert('Virhe hinnaston luomisessa');
+                    }
+                } catch (error) {
+                    console.error('Virhe pyynnön aikana:', error);
+                    alert('Virhe yhteydessä palvelimeen');
+                }
             } else {
                 const errorData = await response.json();
                 console.error('Virhe tapahtuman lisäämisessä:', errorData);
@@ -309,11 +366,62 @@ function Hallinta() {
             console.error('Virhe pyynnön aikana:', error);
         }
     };
-    
-    
-    
-    
 
+    const muokkaaTapahtumaa = async (uusiTapahtuma) => {
+        
+        if (
+            !uusiTapahtuma.nimi || 
+            !uusiTapahtuma.paikka || 
+            !uusiTapahtuma.kuvaus || 
+            !uusiTapahtuma.aika || 
+            !uusiTapahtuma.ennakkomyynti || 
+            uusiTapahtuma.lippumaara === 0
+        ) {
+            alert('Täytä kaikki kentät!');
+            return;
+        } else if (!uusiTapahtuma.id) {
+            alert('jotain meni vikaan id:tä ei löytynyt');
+            return;
+        }
+        
+        const {id, ...bodyarray } = uusiTapahtuma;
+
+        try {
+            const response = await fetch(
+                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${uusiTapahtuma.id}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(bodyarray),
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                
+                setFilteredTapahtumat((prevTapahtumat) => {
+                    return prevTapahtumat.map((tapahtuma) => {
+                        if (tapahtuma.tapahtumaId === data.tapahtumaId) {
+                            return { ...tapahtuma, ...data };
+                        }
+                        return tapahtuma;
+                    });
+                });
+
+                alert('Tapahtuma muokattu');
+                setTapahtumaModal(false);
+                tyhjennaTapahtumaKentat();
+            } else {
+                const errorData = await response.json();
+                alert(`Virhe tapahtuman muokkaamisessa: ${errorData.message || 'Tuntematon virhe'}`);
+            }
+        } catch (error) {
+            console.error('Virhe pyynnön aikana:', error);
+        }
+    };
+    
     return (
         <>
             <CssBaseline />
@@ -398,14 +506,26 @@ function Hallinta() {
                                             <TableRow key={tapahtuma.id}>
                                                 <TableCell>{tapahtuma.nimi}</TableCell>
                                                 <TableCell sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap' }}>
-                                                    <Button
-                                                        variant="outlined"
-                                                        color="primary"
-                                                        onClick={() => alert('Muokkaus tulossa myöhemmin')}
-                                                        size="small"
-                                                    >
-                                                        Muokkaa
-                                                    </Button>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="primary"
+                                                    onClick={() => {
+                                                        setMuokattavaTapahtuma({
+                                                            id: tapahtuma.tapahtumaId,
+                                                            nimi: tapahtuma.nimi,
+                                                            aika: tapahtuma.aika,
+                                                            paikka: tapahtuma.paikka,
+                                                            kuvaus: tapahtuma.kuvaus,
+                                                            lippumaara: tapahtuma.lippumaara,
+                                                            ennakkomyynti: tapahtuma.ennakkomyynti
+                                                        });
+                                                        setTapahtumaModal(true);
+                                                    }}
+                                                    size="small"
+                                                >
+                                                    Muokkaa
+                                                </Button>
+
                                                     <Button
                                                         variant="outlined"
                                                         color="primary"
@@ -452,7 +572,10 @@ function Hallinta() {
             {/*Tapahtuma modal*/}
             <Modal
                 open={tapahtumaModal}
-                onClose={() => setTapahtumaModal(false)}
+                onClose={() => {
+                    tyhjennaTapahtumaKentat();  // Tyhjentää kentät
+                    setTapahtumaModal(false);       // Sulkee modaalin
+                }}
             >
                      <Box sx={{
                     position: 'absolute',
@@ -535,9 +658,18 @@ function Hallinta() {
                             variant="outlined"
                             required
                         />
-                        <Button onClick={() => luoUusiTaphtuma(uusiTapahtuma)} variant="contained" color="primary">
-                            Tallenna tapahtuma
+                        <Button
+                            onClick={() =>
+                                muokattavaTapahtuma
+                                    ? muokkaaTapahtumaa(uusiTapahtuma)
+                                    : luoUusiTaphtuma(uusiTapahtuma)
+                            }
+                            variant="contained"
+                            color="primary"
+                        >
+                            {muokattavaTapahtuma ? 'Päivitä tapahtuma' : 'Tallenna tapahtuma'}
                         </Button>
+
                     </Box>
                 </Box>
             </Modal>
@@ -545,7 +677,10 @@ function Hallinta() {
             {/* Hinnasto modal */}
             <Modal
                 open={modalOpen}
-                onClose={() => setModalOpen(false)}
+                onClose={() => {
+                    setModalOpen(false);
+                    setHinnastot([]);
+                }}
                 aria-labelledby="modal-title"
                 aria-describedby="modal-description"
             >
