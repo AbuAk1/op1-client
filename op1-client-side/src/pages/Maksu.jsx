@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Lippu } from "../components/Lippu";
 
@@ -8,6 +8,7 @@ import { Button } from '@mui/material';
 
 function Maksu() {
     const token = localStorage.getItem("token");
+    const kayttajaId = localStorage.getItem("id");
     const location = useLocation(); // Hook navigointidatan käyttöön
     const navigate = useNavigate(); // Hook navigointiin
 
@@ -35,7 +36,7 @@ function Maksu() {
                         },
                         body: JSON.stringify({
                             "kayttaja": {
-                                "kayttajaId": 1
+                                "kayttajaId": kayttajaId
                             }
                         })
                     }
