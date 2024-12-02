@@ -422,15 +422,18 @@ function Myynti() {
 
     const tulostaLiput = async (tapahtuma) => {
         //loopataan niin monta kertaa kun lippuja on jäljellä tapahtumassa
-        // console.log('tulostetaan ', tapahtuma);
-        console.log('tulostetaan !!!! Brrrrr');
-
-
+        
         let lippujaJaljella = tapahtuma.lippumaara - tapahtuma.myydytLiput;
 
         const tapahtumanHinnastot = await haeHinnastot(tapahtuma.tapahtumaId);
         const ovimyyntiHinta = tapahtumanHinnastot.filter(h => h.hintaluokka == "ovimyynti")[0]; //kovakoodaatu vain ensimmäinen ovihinta!
-
+        console.log(ovimyyntiHinta);
+        
+        
+        if (!ovimyyntiHinta) {
+            alert('ovimyyntihintaa ei ole määritelty, palaa hallintaan tekemään ovihinta tapahtumalle');
+            return;
+        }
 
         for (let i = 0; i < lippujaJaljella; i++) {
 
@@ -462,7 +465,8 @@ function Myynti() {
 
             <Box sx={{ padding: '20px 20px 200px 20px', display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                 {tapahtumat
-                    .filter((tap) => (tap.lippumaara - tap.myydytLiput > 0 || new Date(tap.ennakkomyynti) > new Date()))
+                    //ei saa olla totta (lippuja ei ole jäljellä ja ennakkomyynti loppunut)
+                    .filter((tap) => !(tap.lippumaara - tap.myydytLiput <= 0 && new Date(tap.ennakkomyynti) < new Date()))
                     .map((tap) => (
                         <Card key={tap.tapahtumaId} sx={{ width: 320, mb: 2, padding: '30px', borderRadius: '20px' }}>
                             <CardContent>
@@ -489,19 +493,21 @@ function Myynti() {
                                 </Typography>
                             </CardContent>
                             <CardActions>
-                                <Button
-                                    disabled={tap.lippumaara - tap.myydytLiput <= 0}
-                                    variant="outlined"
-                                    onClick={() => avaaModal(tap)}
-                                >
-                                    Myy lippuja
-                                </Button>
+                                {new Date(tap.ennakkomyynti) > new Date() && (
+                                    <Button
+                                        disabled={tap.lippumaara - tap.myydytLiput <= 0}
+                                        variant="outlined"
+                                        onClick={() => avaaModal(tap)}
+                                    >
+                                        Myy lippuja
+                                    </Button>
+                                )}
                                 {(tap.lippumaara - tap.myydytLiput > 0 && new Date(tap.ennakkomyynti) <= new Date()) && (
                                     <Button
                                         variant="outlined"
                                         onClick={() => tulostaLiput(tap)}
                                     >
-                                        Printtaa loput liput
+                                        Tulosta loput liput
                                     </Button>
                                 )}
                             </CardActions>
@@ -632,9 +638,11 @@ function Myynti() {
                             <MenuItem value="" disabled>
                                 Valitse hintaluokka
                             </MenuItem>
-                            {hinnastot.map((h) => (
+                            {hinnastot
+                            .filter((h) => h.hintaluokka !== 'ovimyynti') // Suodatetaan 'ovimyynti' pois
+                            .map((h) => (
                                 <MenuItem key={h.hinnastoid} value={h.hinnastoid}>
-                                    {h.hintaluokka} - {h.hinta} €
+                                {h.hintaluokka} - {h.hinta} €
                                 </MenuItem>
                             ))}
                         </Select>

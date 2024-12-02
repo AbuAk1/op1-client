@@ -8,6 +8,7 @@ import { Button } from '@mui/material';
 
 function Maksu() {
     const token = localStorage.getItem("token");
+    const kayttajaId = localStorage.getItem("id");
     const location = useLocation(); // Hook navigointidatan käyttöön
     const navigate = useNavigate(); // Hook navigointiin
 
@@ -43,7 +44,7 @@ function Maksu() {
                         },
                         body: JSON.stringify({
                             "kayttaja": {
-                                "kayttajaId": 1
+                                "kayttajaId": kayttajaId
                             }
                         })
                     }
@@ -142,15 +143,21 @@ function Maksu() {
                             display: flex;
                             flex-direction: column;
                             gap: 20px;
-                            padding: 20px;
                         }
 
                         .print-item {
-                            border: 2px solid #000;
-                            padding: 20px;
+                            border: 2px dashed #000;
                             box-sizing: border-box;
                             background-color: #fff;
                             width: 100%;
+                        }
+
+                        /* Tulostusasetukset */
+                        @media print {
+                            body {
+                                -webkit-print-color-adjust: exact; /* Varmistaa värin tulostuksen */
+                                color-adjust: exact;
+                            }
                         }
                     </style>
                 </head>
@@ -162,7 +169,9 @@ function Maksu() {
             </html>
         `);
         newWindow.document.close();
-        newWindow.print();
+        newWindow.onload = () => {
+            newWindow.print();
+        };
     };
 
     return (
@@ -228,7 +237,7 @@ function Maksu() {
                     </Typography>
                     <div ref={printRef} className="print-container" >
                         {myydytLiput.map((lippu) => (
-                            <div className="print-item" key={lippu.lippuId}>
+                            <div style={{ margin: '20px 0'}} className="print-item" key={lippu.lippuId}>
                                 <Lippu lippu={lippu} />
                             </div>
                         ))}

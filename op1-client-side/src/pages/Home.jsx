@@ -16,25 +16,28 @@ function Home() {
     const logOut = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
+        localStorage.removeItem('id');
         navigate(-1);
     }
 
     const [role, setRole] = useState([]);
+    const [id, setId] = useState();
 
     useEffect(() => {
-        const token = localStorage.getItem('token');// Haetaan token localStoragesta
+        const token = localStorage.getItem('token');
         if (token) {
             const decoded = parseJwt(token);
-            console.log(decoded);
             setRole(decoded.role);
+            setId(decoded.id);
             localStorage.setItem('role', decoded.role)
+            localStorage.setItem('id', decoded.id)
         }
     }, []);
 
     const parseJwt = (token) => {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(window.atob(base64));  // Purkaa tokenin payload-osa
+        return JSON.parse(window.atob(base64));
     };
 
 
