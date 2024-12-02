@@ -20,10 +20,21 @@ import {
     TableHead,
     Accordion,
     AccordionSummary,
-    AccordionDetails
+    AccordionDetails,
+    Paper,
+    Dialog,
+    DialogTitle,
+    DialogContentText,
+    DialogContent,
+    DialogActions,
 
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
+
 
 function Myynti() {
     const token = localStorage.getItem('token');
@@ -36,6 +47,12 @@ function Myynti() {
     const [maksutapahtumat, setMaksutapahtumat] = useState([]);
     const [liput, setLiput] = useState([]);
     const [maksutapahtumanLiput, setMaksutapahtumanLiput] = useState({});
+    const [startDate, setStartDate] = useState(dayjs());
+    const [endDate, setEnDate] = useState(dayjs());
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [maksuId, setMaksuId] = useState(null);
+    const [palautusSumma, setPalautusSumma] = useState(0);
+    const [haetutMaksutapahtumat, setHaetutMaksutapahtumat] = useState([]);
 
     const navigate = useNavigate();
 
@@ -60,17 +77,11 @@ function Myynti() {
             if (JSON.stringify(tapahtumat) !== JSON.stringify(tapahtumatMyydyillaLipuilla)) {
                 setTapahtumat(tapahtumatMyydyillaLipuilla); // Päivitä tapahtumat tilaan
             }
-            console.log(tapahtumat);
 
         };
 
         lisaaMyydytLiput();
     }, [tapahtumat]); // Ajetaan aina, kun 'tapahtumat' muuttuu
-
-    useEffect(() => {
-        console.log(tapahtumat);
-
-    }, [tapahtumat])
 
     const haeTapahtumat = async () => {
 
@@ -166,10 +177,7 @@ function Myynti() {
                 const data = await response.json();
                 if (data.length > 0) {
                     return data.length;
-                } else {
-                    alert('ei lippuja');
-                }
-
+                } 
             } else {
                 return 0;
             }
@@ -254,19 +262,44 @@ function Myynti() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log("Maksutapahtumat haettu", data);
-                const suodatetutTapahtumat = data.filter((tapahtuma) => !tapahtuma.removed);
+                const suodatetutTapahtumat = data.filter((tapahtuma) => !tapahtuma.removed).reverse();
                 setMaksutapahtumat(suodatetutTapahtumat);
+                setHaetutMaksutapahtumat(suodatetutTapahtumat);
                 await haeLiput();
             } else {
                 const errorData = await response.json();
                 console.error("Virhe maksutapahtumien haussa", errorData)
-                throw new Error("Maksutapahtumia ei voida noutaa.");
+                alert('Maksutapahtumia ei löytynyt.')
+                
             }
         } catch (error) {
             console.error("Virhe maksutapahtumapyynnön aikana:", error);
-            throw error;
+            alert('Maksutapahtumia ei voitu hakea tietokannasta.')
         }
+    }
+
+    const suodataMaksutapahtumat = () => {
+
+        if (!startDate || !endDate) {
+            alert("Valitse aikaväli.");
+            return;
+        }
+
+        const suodatetutTapahtumat = maksutapahtumat.filter((maksu) => {
+            const maksuDate = dayjs(maksu.aikaleima);
+            const start = dayjs(startDate).startOf('day');
+            const end = dayjs(endDate).endOf('day');
+
+            return maksuDate.isBetween(start, end, null, '[]');
+        })
+
+        if (!suodatetutTapahtumat || suodatetutTapahtumat <= 0) {
+
+            alert('Maksutapahtumia ei löytynyt kyseisellä aikavälillä. Näytetään kaikki maksutapahtumat.')
+            haeMaksutapahtumat();
+        }
+
+        setHaetutMaksutapahtumat(suodatetutTapahtumat);
     }
 
     const haeLiput = async () => {
@@ -285,15 +318,14 @@ function Myynti() {
             if (response.ok) {
                 const data = await response.json();
                 setLiput(data)
-                console.log("Liput haettu", data)
             } else {
                 const errorData = await response.json();
                 console.error("Virhe lippujen haussa", errorData);
-                throw new Error("Lippuja ei voida noutaa.");
+                alert('Lippujen haku epäonnistui.')
             }
         } catch (error) {
             console.error("Virhe lippupyynnön aikana: ", error)
-            throw error;
+            alert('Lippuja ei voitu noutaa tietokannasta.')
         }
     };
 
@@ -315,13 +347,6 @@ function Myynti() {
 
     const poistaMaksutapahtuma = async (id) => {
 
-        const confirmDelete = window.confirm("Haluatko varmasti poistaa maksutapahtuman lippuineen?");
-
-        if (!confirmDelete) {
-            console.log("Tapahtuman poisto peruttiin.");
-            return;
-        }
-
         try {
             const response = await fetch(
                 `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat/${id}`,
@@ -334,19 +359,20 @@ function Myynti() {
                 });
 
             if (response.ok) {
-                console.log("Maksutapahtuma poistettu id:llä", id);
                 await poistaMaksutapahtumanLiput(id);
                 await haeMaksutapahtumat();
                 setMaksutapahtumanLiput({});
             } else {
                 const errorData = await response.json();
                 console.error("Virhe maksutapahtuman poistossa", errorData)
-                throw new Error("Maksutapahtumaa ei voida poistaa.");
+                alert('Maksutapahtumaa ei voitu poistaa.')
             }
         } catch (error) {
             console.error("Virhe maksutapahtuman poistopyynnön aikana:", error);
-            throw error;
+            alert('Maksutapahtumaa ei voitu poistaa.')
         }
+
+        setDialogOpen(false);
 
     }
 
@@ -355,7 +381,6 @@ function Myynti() {
         await haeMaksutapahtumanLiput(id);
 
         if (!maksutapahtumanLiput[id] || maksutapahtumanLiput[id].length === 0) {
-            console.log("Ei lippuja poistettavaksi.");
             return;
         }
 
@@ -373,33 +398,41 @@ function Myynti() {
                     });
 
                 if (response.ok) {
-                    console.log("Lippu poistettu id:llä", lippu.lippuId);
+                    return;
                 } else {
                     const errorData = await response.json();
-                    console.error("Virhe lipun poistossa", errorData)
-                    throw new Error("Lippua ei voida poistaa.");
+                    console.error("Virhe lipun poistossa", errorData);
+                    alert('Maksutapahtuman lippuja ei voitu poistaa.');
                 }
             } catch (error) {
                 console.error("Virhe lipun poistopyynnön aikana:", error);
-                throw error;
+                alert('Maksutapahtuman lippuja ei voitu poistaa.');
             }
         }
 
     }
 
+    const avaaDialog = (maksutaphtumaId, summa) => {
+        setMaksuId(maksutaphtumaId);
+        setPalautusSumma(summa);
+        setDialogOpen(true);
+    }
+
+    const suljeDialog = () => setDialogOpen(false)
+
     const tulostaLiput = async (tapahtuma) => {
         //loopataan niin monta kertaa kun lippuja on jäljellä tapahtumassa
         // console.log('tulostetaan ', tapahtuma);
         console.log('tulostetaan !!!! Brrrrr');
-        
+
 
         let lippujaJaljella = tapahtuma.lippumaara - tapahtuma.myydytLiput;
-        
+
         const tapahtumanHinnastot = await haeHinnastot(tapahtuma.tapahtumaId);
         const ovimyyntiHinta = tapahtumanHinnastot.filter(h => h.hintaluokka == "ovimyynti")[0]; //kovakoodaatu vain ensimmäinen ovihinta!
-        
 
-        for(let i=0; i < lippujaJaljella ; i++){
+
+        for (let i = 0; i < lippujaJaljella; i++) {
 
             const uusiLippu = {
                 tapahtumaId: tapahtuma.tapahtumaId,
@@ -408,11 +441,11 @@ function Myynti() {
                 hinta: ovimyyntiHinta.hinta,
                 hintaluokka: ovimyyntiHinta.hintaluokka,
             };
-    
+
             console.log(uusiLippu);
             setLisatytLiput((prev) => [...prev, uusiLippu]);
 
-        }  
+        }
     }
 
     return (
@@ -477,9 +510,31 @@ function Myynti() {
             </Box>
 
 
-            {maksutapahtumat && (
-                <Box sx={{ marginTop: -25, display: 'flex', flexWrap: 'wrap', }}>
-                    {maksutapahtumat.map((maksu) => (
+            {maksutapahtumat && maksutapahtumat.length > 0 && (
+                <Box sx={{ marginTop: -25, display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+
+                    <Paper sx={{ width: 1250, height: 75, textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, padding: 1}}>
+                        <Typography variant='h6'><strong>Hae maksutapahtumat aikaväliltä:</strong> </Typography>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                                label="Alkupäivämäärä"
+                                value={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                format="DD/MM/YYYY"
+                                sx={{ marginRight: 2, marginLeft: 2 }} />
+                            <Typography variant='h6'><strong>-</strong></Typography>
+                            <DatePicker
+                                label="Loppupäivämäärä"
+                                value={endDate}
+                                onChange={(date) => setEnDate(date)}
+                                format="DD/MM/YYYY"
+                                sx={{ marginLeft: 2, marginRight: 2 }} />
+                            <Button variant='contained' onClick={suodataMaksutapahtumat} sx={{marginRight: 2, backgroundColor: 'green', borderRadius: 5, ":hover": { backgroundColor: 'darkgreen'}}}>Hae maksutapahtumia</Button>
+                            <Button variant='contained' onClick={haeMaksutapahtumat} sx={{marginRight: 2, borderRadius: 5}}>Näytä kaikki maksutapahtumat</Button>
+                        </LocalizationProvider>
+                    </Paper>
+
+                    {haetutMaksutapahtumat.map((maksu) => (
                         <Card key={maksu.maksutapahtumaId} sx={{ margin: 3, borderRadius: 5, padding: 3, width: 500 }}>
                             <Typography variant="h6">
                                 Maksutapahtuma {maksu.maksutapahtumaId}
@@ -522,13 +577,30 @@ function Myynti() {
                             <CardActions sx={{ justifyContent: 'center' }}>
                                 <Button
                                     variant='contained'
-                                    sx={{ backgroundColor: 'red', ":hover": { backgroundColor: 'darkred' } }}
-                                    onClick={() => poistaMaksutapahtuma(maksu.maksutapahtumaId)}>
-                                    Poista maksutapahtuma
+                                    sx={{ backgroundColor: 'red', ":hover": { backgroundColor: 'darkred'}, borderRadius: 5}}
+                                    onClick={() => avaaDialog(maksu.maksutapahtumaId, maksu.hintayhteensa)}>
+                                    Peruuta maksutapahtuma
                                 </Button>
                             </CardActions>
                         </Card>
                     ))}
+
+
+                    <Dialog open={dialogOpen} onClose={suljeDialog} PaperProps={{sx:{borderRadius: 5, padding: 2}}}>
+                        <DialogTitle>Vahvista maksutapahtuman peruutus</DialogTitle>
+                        <DialogContent>
+                        <DialogContentText sx={{color: 'black'}}>Haluatko varmasti peruuttaa maksutapahtuman lippuineen?</DialogContentText>
+                        <DialogContentText sx={{color: 'black'}}><strong>Palautettava summa:</strong> {palautusSumma} €</DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => poistaMaksutapahtuma(maksuId)} variant='contained' sx={{borderRadius: 5}}>Vahvista</Button>
+                            <Button onClick={suljeDialog}
+                            variant='contained'
+                            sx={{backgroundColor: 'red', ":hover": { backgroundColor: 'darkred' }, borderRadius: 5}}>
+                            Peruuta</Button>
+                        </DialogActions>
+
+                    </Dialog>
 
                 </Box>
             )}
