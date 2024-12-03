@@ -8,7 +8,6 @@ import logo from '../images/ticketguru.webp';
 
 
 export const Lippu = ({ lippu }) => {
-    //console.log(lippu.koodi);
   return (
     <Paper elevation={2} 
       style={{ 

@@ -12,7 +12,7 @@ function Tarkistus() {
 
     const navigate = useNavigate();
 
-    // Kutsu etsi(), kun lippunumero on saatu
+    
     useEffect(() => {
         if (lippunumero) {
             etsi();
@@ -21,11 +21,8 @@ function Tarkistus() {
 
     const etsi = async () => {
         if (!lippunumero) {
-            // Lippunumeron puuttuessa yrittää uudelleen
             return;
         }
-
-        console.log("Haetaan lippua numerolla:", lippunumero);
         const token = localStorage.getItem("token");
         try {
             const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/koodi/${lippunumero}`, {
@@ -37,7 +34,6 @@ function Tarkistus() {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log("Lippu löytyi: ", data);
                 setLippu(data);
                 setLippuId(data.lippuId);
                 setError('');
@@ -94,12 +90,8 @@ function Tarkistus() {
 
 
     const kaytaLippu = async () => {
-        console.log(lippunumero)
         const token = localStorage.getItem("token");
         try {
-            // console.log(token);
-            console.log(lippuId);
-
             const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
                 method: "PATCH",
                 headers: {
@@ -111,7 +103,6 @@ function Tarkistus() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(data)
                 setLippu(data);
             } else {
                 console.error("Virhe lipun haussa");
@@ -126,14 +117,8 @@ function Tarkistus() {
 
 
     const peruutaKaytto = async () => {
-        console.log(lippunumero)
-
         const token = localStorage.getItem("token");
-
         try {
-            // console.log(token);
-            console.log(lippuId);
-
             const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
                 method: "PATCH",
                 headers: {
@@ -145,7 +130,6 @@ function Tarkistus() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(data)
                 setLippu(data);
             } else {
                 console.error("Virhe lipun haussa");

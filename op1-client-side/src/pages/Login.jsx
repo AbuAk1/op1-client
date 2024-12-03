@@ -43,14 +43,11 @@ const Login = () => {
       });
 
       if (!response.ok) {
-        console.log(response);
         throw new Error('Kirjautuminen epäonnistui');
       }
 
       const data = await response.json();
       localStorage.setItem('token', data.jwt);
-      console.log(data);
-      console.log(data.jwt);
       alert('Kirjautuminen onnistui!');
       // navigate("/tarkistus");
       navigate("/home");
