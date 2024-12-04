@@ -33,9 +33,16 @@ Lippujen myynnissä haetaan tapahtumat ja valitaan mihin myydään lippuja sekä
 ### Admin-rooli
 Sisäänkirjautuneelle Admin-roolin käyttäjälle näkyy tarkistuksen ja myynnin lisäksi myös navigaatio hallinta-sivulle. Tarkistus- ja myyntisivut ovat toiminnoiltaan vastaavat kuin yllä esitellyt User-roolin sivut.
 
-#### Tapahtumien ja käyttäjien hallinta
+![Käyttöliittymän etusivun näkymä admin-roolissa](op1-client-side/wireframes/adminHome.png)
 
+#### Tapahtumien hallinta
+Tapahtumien hallinnassa kaikki tapahtumat näkyvät listana ja niistä voi hakea nimellä tiettyä tapahtumaa. Lisäys-, muokkaus- ja poistotoiminnot ovat kaikki samassa näkymässä.
 
+![Käyttöliittymän näkymä tapahtumien hallintaan](op1-client-side/wireframes/tapahtumat.png)
 
+![Käyttöliittymän näkymä uuden tapahtuman lisäämiseen](op1-client-side/wireframes/uusiTapahtuma.png)
 
+![Käyttöliittymän näkymä tapahtuman muokkaamiseen](op1-client-side/wireframes/tapahtumanMuokkaus.png)
 
+#### Käyttäjien hallinta
+Tässä projektissa ei toteutettu käyttäjien hallintaa käyttöliittymän puolelle. Käyttäjiä voi lisätä, muokkaa ja poistaa suoraan tietokannasta.
