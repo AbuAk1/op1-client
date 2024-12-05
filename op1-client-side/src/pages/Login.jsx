@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { TextField, Button, Typography, Box, Alert } from '@mui/material';
 import loginBg from '../images/loginbg.jpg';
 import logo from '../images/ticketguru.webp';
@@ -50,9 +49,7 @@ const Login = () => {
       const data = await response.json();
       localStorage.setItem('token', data.jwt);
       alert('Kirjautuminen onnistui!');
-      // navigate("/tarkistus");
       navigate("/home");
-      
       
     } catch (err) {
       setError(err.message);

@@ -1,8 +1,5 @@
-import React , { useRef } from 'react';
-import { Paper, List, ListItem, ListItemText, Box, Typography } from '@mui/material';
-// import { QRCode } from 'qrcode.react';
-
-import ReactDOM from 'react-dom';
+import React from 'react';
+import { Paper, Box, Typography } from '@mui/material';
 import {QRCodeSVG} from 'qrcode.react';
 import logo from '../images/ticketguru.webp';
 
