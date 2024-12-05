@@ -325,7 +325,7 @@ function Hallinta() {
                         tapahtumaId: data.tapahtumaId
                     },
                     hintaluokka: 'ovimyynti',
-                    hinta: parseFloat(1),
+                    hinta: 0,
                 };
 
                 try {
