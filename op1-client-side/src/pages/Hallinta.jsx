@@ -558,7 +558,7 @@ function Hallinta() {
                                                         >
                                                         Raportti
                                                     </Button>
-                                                    {/*Raportti modeli*/}
+                                                    {/*Raportti modeli, ei toiminut täällä. Vietiin omaksi sivuksi niin toimi*/}
                                                     
                                                         {raporttiModal && 
                                                         <Raportti 

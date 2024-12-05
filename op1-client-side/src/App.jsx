@@ -4,6 +4,7 @@ import Tarkistus from './pages/Tarkistus'
 import Myynti from './pages/Myynti'
 import Maksu from './pages/Maksu'
 import Hallinta from './pages/Hallinta'
+import Raporttisivu from './pages/Raporttisivu'
 import {createBrowserRouter, RouterProvider,} from "react-router-dom";
 
 import Home from './pages/Home'
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: 'Hallinta',
     element: <Hallinta />
+  },
+  {
+    path: 'Raporttisivu',
+    element: <Raporttisivu />
   },
 ]);
 
