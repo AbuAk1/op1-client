@@ -16,6 +16,7 @@ import {
     Paper,
     CssBaseline
 } from '@mui/material';
+import Raportti from '../components/Raportti';
 
 function Hallinta() {
     const url = "https://ticketguru-backend-main-ohjelmistoprojekti.2.rahtiapp.fi";
@@ -25,6 +26,7 @@ function Hallinta() {
     const [muokattavaTapahtuma, setMuokattavaTapahtuma] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [tapahtumaModal, setTapahtumaModal] = useState(false);
+    const [raporttiModal, setRaporttiModal] = useState(false);
     const [filteredTapahtumat, setFilteredTapahtumat] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [hinnastot, setHinnastot] = useState([]);
@@ -257,6 +259,12 @@ function Hallinta() {
 
     const avaaTapahtumaModal = () => {
         setTapahtumaModal(true);
+    };
+    
+
+    const avaaRaporttiModal = (valittuTapahtuma) => {
+        setTapahtuma(valittuTapahtuma); // Aseta valittu tapahtuma
+        setRaporttiModal(true); // Aseta modal auki
     };
 
     const tyhjennaTapahtumaKentat = () => {
@@ -541,6 +549,29 @@ function Hallinta() {
                                                     >
                                                         Lisätiedot
                                                     </Button>
+                                                    {/*Raportti nappi*/}
+                                                    <Button
+                                                        variant="outlined"
+                                                        color="primary"
+                                                        onClick={() => avaaRaporttiModal(tapahtuma.tapahtumaId)}
+                                                        size="small"
+                                                        >
+                                                        Raportti
+                                                    </Button>
+                                                    {/*Raportti modeli*/}
+                                                    
+                                                        {raporttiModal && 
+                                                        <Raportti 
+                                                        open={raporttiModal} 
+                                                        onClose={() => setRaporttiModal(false)} 
+                                                        tapahtuma={tapahtuma} 
+                                                        role={role} 
+                                                        url={url} 
+                                                        token={token} 
+                                                    />
+                                                        
+                                                        }
+                                                        
                                                     <Button
                                                         variant="outlined"
                                                         color="primary"
