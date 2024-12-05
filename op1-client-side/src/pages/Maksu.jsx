@@ -7,6 +7,7 @@ import { Box } from '@mui/material';
 import { Button } from '@mui/material';
 
 function Maksu() {
+    const url = "https://ticketguru-backend-main-ohjelmistoprojekti.2.rahtiapp.fi";
     const token = localStorage.getItem("token");
     const kayttajaId = localStorage.getItem("id");
     const location = useLocation(); // Hook navigointidatan käyttöön
@@ -35,7 +36,7 @@ function Maksu() {
         const luoUusiMaksutapahtuma = async () => {
             try {
                 const response = await fetch(
-                    `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat`,
+                    `${url}/api/maksutapahtumat`,
                     {
                         method: "POST",
                         headers: {
@@ -100,7 +101,7 @@ function Maksu() {
 
             try {
                 const response = await fetch(
-                    `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput`,
+                    `${url}/api/liput`,
                     {
                         method: "POST",
                         headers: {

@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 
 function Hallinta() {
+    const url = "https://ticketguru-backend-main-ohjelmistoprojekti.2.rahtiapp.fi";
     const token = localStorage.getItem("token");
     const [tapahtumat, setTapahtumat] = useState([]);
     const [tapahtuma, setTapahtuma] = useState('');
@@ -55,7 +56,7 @@ function Hallinta() {
     const haeTapahtumat = async () => {
         try {
             const response = await fetch(
-                'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
+                `${url}/api/tapahtumat`,
                 {
                     method: 'GET',
                     headers: {
@@ -79,7 +80,7 @@ function Hallinta() {
     const poistaTapahtuma = async (tapahtumaId) => {
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}`,
+                `${url}/api/tapahtumat/${tapahtumaId}`,
                 {
                     method: 'DELETE',
                     headers: {
@@ -107,7 +108,7 @@ function Hallinta() {
 
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/hinnastot`,
+                `${url}/api/tapahtumat/${tapahtumaId}/hinnastot`,
                 {
                     method: 'GET',
                     headers: {
@@ -129,7 +130,7 @@ function Hallinta() {
 
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot/${hinnastoId}`,
+                `${url}/api/hinnastot/${hinnastoId}`,
                 {
                     method: 'DELETE',
                     headers: {
@@ -180,7 +181,7 @@ function Hallinta() {
 
         try {
             const response = await fetch(
-                'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot',
+                `${url}/api/hinnastot`,
                 {
                     method: 'POST',
                     headers: {
@@ -297,7 +298,7 @@ function Hallinta() {
 
         try {
             const response = await fetch(
-                'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
+                `${url}/api/tapahtumat`,
                 {
                     method: 'POST',
                     headers: {
@@ -329,7 +330,7 @@ function Hallinta() {
 
                 try {
                     const response = await fetch(
-                        'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot',
+                        `${url}/api/hinnastot`,
                         {
                             method: 'POST',
                             headers: {
@@ -388,7 +389,7 @@ function Hallinta() {
 
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${uusiTapahtuma.id}`,
+                `${url}/api/tapahtumat/${uusiTapahtuma.id}`,
                 {
                     method: 'PATCH',
                     headers: {

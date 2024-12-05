@@ -41,7 +41,6 @@ export const Lippu = ({ lippu }) => {
       </Box>
 
       <QRCodeSVG value={lippu.koodi} size={200} fgColor="#000000" bgColor="#ffffff" />
-        {/* <QRCodeSVG value={"https://dev.to/onlyoneerin/creating-dynamic-qr-codes-using-reactjs-a-step-by-step-tutorial-341a"} size={256} fgColor="#000000" bgColor="#ffffff" /> */}
     </Paper>
   );
 };

@@ -6,6 +6,7 @@ import loginBg from '../images/loginbg.jpg';
 import logo from '../images/ticketguru.webp';
 
 const Login = () => {
+  const url = "https://ticketguru-backend-main-ohjelmistoprojekti.2.rahtiapp.fi";
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,7 +35,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/login', {
+      const response = await fetch(`${url}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

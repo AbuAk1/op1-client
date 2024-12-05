@@ -4,7 +4,7 @@ import { TextField, Button, Typography, Box } from '@mui/material';
 import jsQR from "jsqr";
 
 function Tarkistus() {
-
+    const url = "https://ticketguru-backend-main-ohjelmistoprojekti.2.rahtiapp.fi";
     const [lippunumero, setLippunumero] = useState("");
     const [lippuId, setLippuId] = useState("");
     const [lippu, setLippu] = useState(null);
@@ -25,7 +25,7 @@ function Tarkistus() {
         }
         const token = localStorage.getItem("token");
         try {
-            const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/koodi/${lippunumero}`, {
+            const response = await fetch(`${url}/api/liput/koodi/${lippunumero}`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -92,7 +92,7 @@ function Tarkistus() {
     const kaytaLippu = async () => {
         const token = localStorage.getItem("token");
         try {
-            const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
+            const response = await fetch(`${url}/api/liput/${lippuId}`, {
                 method: "PATCH",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -119,7 +119,7 @@ function Tarkistus() {
     const peruutaKaytto = async () => {
         const token = localStorage.getItem("token");
         try {
-            const response = await fetch(`https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/${lippuId}`, {
+            const response = await fetch(`${url}/api/liput/${lippuId}`, {
                 method: "PATCH",
                 headers: {
                     "Authorization": `Bearer ${token}`,

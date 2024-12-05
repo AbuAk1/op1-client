@@ -37,6 +37,7 @@ import dayjs from 'dayjs';
 
 
 function Myynti() {
+    const url = "https://ticketguru-backend-main-ohjelmistoprojekti.2.rahtiapp.fi";
     const token = localStorage.getItem('token');
     const [tapahtumat, setTapahtumat] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
@@ -89,7 +90,7 @@ function Myynti() {
 
         try {
             const response = await fetch(
-                'https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat',
+                `${url}/api/tapahtumat`,
                 {
                     method: 'GET',
                     headers: {
@@ -113,7 +114,7 @@ function Myynti() {
     const haeHinnastot = async (tapahtumaId) => {
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/hinnastot`,
+                `${url}/api/tapahtumat/${tapahtumaId}/hinnastot`,
                 {
                     method: 'GET',
                     headers: {
@@ -137,7 +138,7 @@ function Myynti() {
     const haeYksiHinnasto = async (hinnastoId) => {
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/hinnastot/${hinnastoId}`,
+                `${url}/api/hinnastot/${hinnastoId}`,
                 {
                     method: 'GET',
                     headers: {
@@ -163,7 +164,7 @@ function Myynti() {
     const haeTapahtumanLiput = async (tapahtumaId) => {
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/tapahtumat/${tapahtumaId}/liput`,
+                `${url}/api/tapahtumat/${tapahtumaId}/liput`,
                 {
                     method: 'GET',
                     headers: {
@@ -251,7 +252,7 @@ function Myynti() {
 
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat`,
+                `${url}/api/maksutapahtumat`,
                 {
                     method: "GET",
                     headers: {
@@ -305,7 +306,7 @@ function Myynti() {
     const haeLiput = async () => {
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput`,
+                `${url}/api/liput`,
                 {
                     method: 'GET',
                     headers: {
@@ -349,7 +350,7 @@ function Myynti() {
 
         try {
             const response = await fetch(
-                `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/maksutapahtumat/${id}`,
+                `${url}/api/maksutapahtumat/${id}`,
                 {
                     method: "PATCH",
                     headers: {
@@ -388,7 +389,7 @@ function Myynti() {
 
             try {
                 const response = await fetch(
-                    `https://ticketguru-backend-current-ohjelmistoprojekti.2.rahtiapp.fi/api/liput/softdelete/${lippu.lippuId}`,
+                    `${url}/api/liput/softdelete/${lippu.lippuId}`,
                     {
                         method: "PATCH",
                         headers: {
