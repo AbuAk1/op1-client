@@ -177,6 +177,7 @@ function Myynti() {
             if (response.ok) {
                 const data = await response.json();
                 if (data.length > 0) {
+                    console.log("data lengt", data.length);
                     return data.length;
                 } 
             } else {
@@ -332,9 +333,11 @@ function Myynti() {
 
     const haeMaksutapahtumanLiput = async (id) => {
 
-        if (maksutapahtumanLiput[id]) {
-            return;
-        }
+        console.log("hae maksutapahtumat lähtee liikkeelle")
+
+        // if (maksutapahtumanLiput[id]) {
+        //     return;
+        // }
 
         const suodatetutLiput = liput.filter((lippu) =>
             lippu.maksutapahtuma && lippu.maksutapahtuma.maksutapahtumaId === id
@@ -344,6 +347,8 @@ function Myynti() {
             ...prevState,
             [id]: suodatetutLiput,
         }));
+
+        return suodatetutLiput;
     }
 
     const poistaMaksutapahtuma = async (id) => {
@@ -365,12 +370,12 @@ function Myynti() {
                 setMaksutapahtumanLiput({});
             } else {
                 const errorData = await response.json();
-                console.error("Virhe maksutapahtuman poistossa", errorData)
-                alert('Maksutapahtumaa ei voitu poistaa.')
+                console.error("DELETE MAKSUTAPAHTUMA Virhe maksutapahtuman poistossa", errorData)
+                alert('DELETE MAKSUTAPAHTUMA  Maksutapahtumaa ei voitu poistaa.')
             }
         } catch (error) {
-            console.error("Virhe maksutapahtuman poistopyynnön aikana:", error);
-            alert('Maksutapahtumaa ei voitu poistaa.')
+            console.error("DELETE MAKSUTAPAHTUMA  Virhe maksutapahtuman poistopyynnön aikana:", error);
+            alert('DELETE MAKSUTAPAHTUMA  Maksutapahtumaa ei voitu poistaa.')
         }
 
         setDialogOpen(false);
@@ -379,17 +384,22 @@ function Myynti() {
 
     const poistaMaksutapahtumanLiput = async (id) => {
 
-        await haeMaksutapahtumanLiput(id);
+        let poistettavatLiput = await haeMaksutapahtumanLiput(id);
 
-        if (!maksutapahtumanLiput[id] || maksutapahtumanLiput[id].length === 0) {
-            return;
-        }
+        console.log("maksutapahtuman poistossa haetiin lista lipuista",poistettavatLiput)
 
-        for (const lippu of maksutapahtumanLiput[id]) {
+        // if (!maksutapahtumanLiput[id] || maksutapahtumanLiput[id].length === 0) {
+        //     return;
+        // }
+        console.log(maksutapahtumanLiput[id])
+
+        for (let i = 0; i< poistettavatLiput.length; i++ ) {
+            console.log("looppi i",i)
+            console.log("poistelista pituus",poistettavatLiput.length);
 
             try {
                 const response = await fetch(
-                    `${url}/api/liput/softdelete/${lippu.lippuId}`,
+                    `${url}/api/liput/softdelete/${poistettavatLiput[i].lippuId}`,
                     {
                         method: "PATCH",
                         headers: {
@@ -399,15 +409,16 @@ function Myynti() {
                     });
 
                 if (response.ok) {
-                    return;
+                    console.log("meni läpi")
+                    // return;
                 } else {
                     const errorData = await response.json();
-                    console.error("Virhe lipun poistossa", errorData);
-                    alert('Maksutapahtuman lippuja ei voitu poistaa.');
+                    console.error("LIPUT/SOFTDELETE Virhe lipun poistossa", errorData);
+                    alert('LIPUT/SOFTDELETE Maksutapahtuman lippuja ei voitu poistaa, virhe lipun.');
                 }
             } catch (error) {
-                console.error("Virhe lipun poistopyynnön aikana:", error);
-                alert('Maksutapahtuman lippuja ei voitu poistaa.');
+                console.error("LIPUT/SOFTDELETE Virhe lipun poistopyynnön aikana:", error);
+                alert('LIPUT/SOFTDELETE Maksutapahtuman lippuja ei voitu poistaa.');
             }
         }
 
