@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Button,
-    TextField,
     Typography,
     Box,
     Select,
@@ -57,35 +56,34 @@ function Myynti() {
 
     const navigate = useNavigate();
 
+    // päivitetään tapahtumiin myytyjen lippujen määrä
     useEffect(() => {
         const lisaaMyydytLiput = async () => {
-            // Luodaan kopio tapahtumista
             const tapahtumatKopio = [...tapahtumat];
 
-            // Käydään läpi jokainen tapahtuma ja haetaan myydyt liput
             const tapahtumatMyydyillaLipuilla = await Promise.all(
                 tapahtumatKopio.map(async (tapahtuma) => {
-                    // Tarkista, onko 'myydytLiput' jo olemassa
+            
                     if (tapahtuma.myydytLiput == null) {
-                        const myydytliput = await haeTapahtumanLiput(tapahtuma.tapahtumaId); // Hae liput
+                        const myydytliput = await haeTapahtumanLiput(tapahtuma.tapahtumaId); // haetaan myytyjen lippujen määrä
                         return { ...tapahtuma, myydytLiput: myydytliput }; // Päivitä myydyt liput
                     }
                     return tapahtuma;
                 })
             );
 
-            // Päivitetään tapahtumat tilaan, jos ne ovat muuttuneet
             if (JSON.stringify(tapahtumat) !== JSON.stringify(tapahtumatMyydyillaLipuilla)) {
-                setTapahtumat(tapahtumatMyydyillaLipuilla); // Päivitä tapahtumat tilaan
+                setTapahtumat(tapahtumatMyydyillaLipuilla);
             }
-
         };
 
         lisaaMyydytLiput();
-    }, [tapahtumat]); // Ajetaan aina, kun 'tapahtumat' muuttuu
+    }, [tapahtumat]);
 
+    // haetaan kaikki tapahtumat
     const haeTapahtumat = async () => {
 
+        // alustetaan maksutapahtumat tyhjiksi
         setMaksutapahtumat([])
 
         try {
@@ -101,6 +99,7 @@ function Myynti() {
             );
             if (response.ok) {
                 const data = await response.json();
+                // lisätään tapahtumat tapahtuma stateen
                 setTapahtumat(data);
 
             } else {
@@ -111,6 +110,7 @@ function Myynti() {
         }
     };
 
+    // hakee hinnastot yhdelle tapahtumalle
     const haeHinnastot = async (tapahtumaId) => {
         try {
             const response = await fetch(
@@ -125,6 +125,7 @@ function Myynti() {
             );
             if (response.ok) {
                 const data = await response.json();
+                // asetetaan hinnastot state
                 setHinnastot(data);
                 return data;
             } else {
@@ -135,6 +136,7 @@ function Myynti() {
         }
     };
 
+    // hakee yhden hinnaston hinnastoid:llä
     const haeYksiHinnasto = async (hinnastoId) => {
         try {
             const response = await fetch(
@@ -161,6 +163,7 @@ function Myynti() {
         }
     };
 
+    // hakee tapahtuman lippumäärän jotka ei ole removed
     const haeTapahtumanLiput = async (tapahtumaId) => {
         try {
             const response = await fetch(
@@ -177,7 +180,6 @@ function Myynti() {
             if (response.ok) {
                 const data = await response.json();
                 if (data.length > 0) {
-                    console.log("data lengt", data.length);
                     return data.length;
                 } 
             } else {
@@ -187,10 +189,6 @@ function Myynti() {
             return 0;
         }
     };
-
-    // useEffect(() => {
-    //     haeTapahtumanLiput(1);
-    // })
 
     const avaaModal = (tapahtuma) => {
         setSelectedTapahtuma(tapahtuma);
@@ -205,6 +203,7 @@ function Myynti() {
         setHinnastot([]);
     };
 
+    // lisää lipun
     const lisaaLippu = async () => {
 
 
@@ -247,6 +246,12 @@ function Myynti() {
         navigate('/maksu', { state: { lisatytLiput } });
     };
 
+    /*
+        Tässä blokissa on maksutapahtuviin
+         liittyvät funktiot
+    */
+
+    // haetaan maksutapahtumat
     const haeMaksutapahtumat = async () => {
 
         setTapahtumat([])
@@ -280,6 +285,7 @@ function Myynti() {
         }
     }
 
+    // suodatetaan maksutapahtumat
     const suodataMaksutapahtumat = () => {
 
         if (!startDate || !endDate) {
@@ -304,6 +310,7 @@ function Myynti() {
         setHaetutMaksutapahtumat(suodatetutTapahtumat);
     }
 
+    // haetaan liput
     const haeLiput = async () => {
         try {
             const response = await fetch(
@@ -331,13 +338,8 @@ function Myynti() {
         }
     };
 
+    // haetaan maksutapahtuman liput ja asetetaan ne stateen
     const haeMaksutapahtumanLiput = async (id) => {
-
-        console.log("hae maksutapahtumat lähtee liikkeelle")
-
-        // if (maksutapahtumanLiput[id]) {
-        //     return;
-        // }
 
         const suodatetutLiput = liput.filter((lippu) =>
             lippu.maksutapahtuma && lippu.maksutapahtuma.maksutapahtumaId === id
@@ -351,6 +353,7 @@ function Myynti() {
         return suodatetutLiput;
     }
 
+    //poistetaan maksutapahtuma
     const poistaMaksutapahtuma = async (id) => {
 
         try {
@@ -382,20 +385,15 @@ function Myynti() {
 
     }
 
+    /*
+        poistetaan lippu soft deletellä, jotta se voidaan taas myydä uudestaan.
+        Siitä jää kuitenkin merkintä tietokantaan, palautetut liput on removed true.
+    */
     const poistaMaksutapahtumanLiput = async (id) => {
 
         let poistettavatLiput = await haeMaksutapahtumanLiput(id);
 
-        console.log("maksutapahtuman poistossa haetiin lista lipuista",poistettavatLiput)
-
-        // if (!maksutapahtumanLiput[id] || maksutapahtumanLiput[id].length === 0) {
-        //     return;
-        // }
-        console.log(maksutapahtumanLiput[id])
-
         for (let i = 0; i< poistettavatLiput.length; i++ ) {
-            console.log("looppi i",i)
-            console.log("poistelista pituus",poistettavatLiput.length);
 
             try {
                 const response = await fetch(
@@ -409,16 +407,12 @@ function Myynti() {
                     });
 
                 if (response.ok) {
-                    console.log("meni läpi")
-                    // return;
+                    alert(`Lippu ${i+1} palautettu takaisin myyntiin`);
                 } else {
-                    const errorData = await response.json();
-                    console.error("LIPUT/SOFTDELETE Virhe lipun poistossa", errorData);
-                    alert('LIPUT/SOFTDELETE Maksutapahtuman lippuja ei voitu poistaa, virhe lipun.');
+                    alert('Lipun palauttamisessa virhe');
                 }
             } catch (error) {
-                console.error("LIPUT/SOFTDELETE Virhe lipun poistopyynnön aikana:", error);
-                alert('LIPUT/SOFTDELETE Maksutapahtuman lippuja ei voitu poistaa.');
+                console.error("Virhe lipun palautuksessa: ", error);
             }
         }
 
@@ -439,7 +433,6 @@ function Myynti() {
 
         const tapahtumanHinnastot = await haeHinnastot(tapahtuma.tapahtumaId);
         const ovimyyntiHinta = tapahtumanHinnastot.filter(h => h.hintaluokka == "ovimyynti")[0]; //kovakoodaatu vain ensimmäinen ovihinta!
-        console.log(ovimyyntiHinta);
         
         
         if (!ovimyyntiHinta) {
@@ -456,8 +449,6 @@ function Myynti() {
                 hinta: ovimyyntiHinta.hinta,
                 hintaluokka: ovimyyntiHinta.hintaluokka,
             };
-
-            console.log(uusiLippu);
             setLisatytLiput((prev) => [...prev, uusiLippu]);
 
         }
@@ -475,10 +466,11 @@ function Myynti() {
                 Hae maksutapahtumat
             </Button>
 
+            {/* Tapahtumat */}
             <Box sx={{ padding: '20px 20px 200px 20px', display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                 {tapahtumat
-                    //ei saa olla totta (lippuja ei ole jäljellä ja ennakkomyynti loppunut)
-                    .filter((tap) => !(tap.lippumaara - tap.myydytLiput <= 0 && new Date(tap.ennakkomyynti) < new Date()))
+                    // tapahtuma ei saa olla menneisyydessä
+                    .filter((tap) => !(new Date(tap.aika) < new Date()))
                     .map((tap) => (
                         <Card key={tap.tapahtumaId} sx={{ width: 320, mb: 2, padding: '30px', borderRadius: '20px' }}>
                             <CardContent>
@@ -527,12 +519,11 @@ function Myynti() {
                     ))}
             </Box>
 
-
+            {/* filter */}
             {maksutapahtumat && maksutapahtumat.length > 0 && (
-                <Box sx={{ marginTop: -25, display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <Box sx={{ marginTop: -25, display: 'flex', flexWrap: 'wrap' }}>
 
-                    <Paper sx={{ width: 1250, height: 75, textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, padding: 1}}>
-                        <Typography variant='h6'><strong>Hae maksutapahtumat aikaväliltä:</strong> </Typography>
+                    <Box sx={{ width: 1250, height: 75, textAlign: 'center', display: 'flex', alignItems: 'center', m: '40px 0'}}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                                 label="Alkupäivämäärä"
@@ -547,13 +538,14 @@ function Myynti() {
                                 onChange={(date) => setEnDate(date)}
                                 format="DD/MM/YYYY"
                                 sx={{ marginLeft: 2, marginRight: 2 }} />
-                            <Button variant='contained' onClick={suodataMaksutapahtumat} sx={{marginRight: 2, backgroundColor: 'green', borderRadius: 5, ":hover": { backgroundColor: 'darkgreen'}}}>Hae maksutapahtumia</Button>
-                            <Button variant='contained' onClick={haeMaksutapahtumat} sx={{marginRight: 2, borderRadius: 5}}>Näytä kaikki maksutapahtumat</Button>
+                            <Button variant='contained' onClick={suodataMaksutapahtumat} sx={{marginRight: 2, backgroundColor: 'green', borderRadius: 5, ":hover": { backgroundColor: 'darkgreen'}}}>Hae</Button>
+                            <Button variant='contained' onClick={haeMaksutapahtumat} sx={{marginRight: 2, borderRadius: 5}}>Näytä kaikki</Button>
                         </LocalizationProvider>
-                    </Paper>
+                    </Box>
 
+                    {/* maksutapahtumat */}
                     {haetutMaksutapahtumat.map((maksu) => (
-                        <Card key={maksu.maksutapahtumaId} sx={{ margin: 3, borderRadius: 5, padding: 3, width: 500 }}>
+                        <Card key={maksu.maksutapahtumaId} sx={{ margin: 3, borderRadius: 2, padding: 3, width: 450 }}>
                             <Typography variant="h6">
                                 Maksutapahtuma {maksu.maksutapahtumaId}
                             </Typography>
@@ -567,12 +559,12 @@ function Myynti() {
                                 <strong>Myyjä: </strong> {maksu.kayttaja.kayttajaId}
                             </Typography>
 
-                            <Accordion sx={{ margin: 2 }}
+                            <Accordion sx={{ m: 1, boxShadow: 'none'}}
                                 onChange={() => haeMaksutapahtumanLiput(maksu.maksutapahtumaId)}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                 >
-                                    <strong>Maksutapahtuman liput</strong>
+                                    <strong>Näytä liput</strong>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     {maksutapahtumanLiput[maksu.maksutapahtumaId] ? (
@@ -603,7 +595,7 @@ function Myynti() {
                         </Card>
                     ))}
 
-
+                    {/* vahvistus */}
                     <Dialog open={dialogOpen} onClose={suljeDialog} PaperProps={{sx:{borderRadius: 5, padding: 2}}}>
                         <DialogTitle>Vahvista maksutapahtuman peruutus</DialogTitle>
                         <DialogContent>

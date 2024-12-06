@@ -45,6 +45,7 @@ function Home() {
 
         <>
             <Typography variant='h3' sx={{ textAlign: 'center', mb: 7 }}  >VALIKKO</Typography>
+            {/* Ulos kirjautuminen */}
             <Button
                 variant="contained"
                 onClick={logOut}
@@ -59,6 +60,8 @@ function Home() {
             >
                 Kirjaudu ulos
             </Button>
+
+            {/* Tarkistus */}
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                 <Button
                     onClick={() => navigate("/tarkistus")}
@@ -99,6 +102,8 @@ function Home() {
                         Siirry Tarkistukseen
                     </Box>
                 </Button>
+
+                {/* Myynti */}
                 <Button
                     onClick={() => navigate("/myynti")}
                     sx={{
@@ -138,6 +143,8 @@ function Home() {
                         Siirry Myyntiin
                     </Box>
                 </Button>
+
+                {/* Hallinta vain admin rooleille */}
                 {role.includes('ADMIN') && (
                     <>
                         <Button

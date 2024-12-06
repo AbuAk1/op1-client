@@ -6,6 +6,7 @@ import BarChart from "./BarChart";
 const Raportti = ({ open, onClose, tapahtuma, role, url, token }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState('');
     
 
     useEffect(() => {
@@ -14,7 +15,7 @@ const Raportti = ({ open, onClose, tapahtuma, role, url, token }) => {
         }
     }, [tapahtuma]);
 
-
+    // haetaan raporttidata
     const fetchRaporttiData = async () => {
         try {
             const response = await fetch(
@@ -29,20 +30,15 @@ const Raportti = ({ open, onClose, tapahtuma, role, url, token }) => {
             );
             if (response.ok) {
                 const data = await response.json();
-                // console.log(data);
                 setData(data);
                 setLoading(false);
             } else {
-                console.error('Virhe tapahtumien haussa');
+                setMessage('Ei tietoja');
             }
         } catch (error) {
             console.error('Virhe pyynnön aikana:', error);
         }
     }
-
-    // if (loading) {
-    //     return <div>Ladataan raporttia...</div>;
-    //   }
 
 
     return (
@@ -101,7 +97,7 @@ const Raportti = ({ open, onClose, tapahtuma, role, url, token }) => {
                         </Box>
                     </Box>
                 ) : <Typography sx={{ mt: 2 }}>
-                    Loading....
+                    {message}
                 </Typography>}
 
                 <Button

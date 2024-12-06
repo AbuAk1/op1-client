@@ -104,6 +104,7 @@ function Tarkistus() {
             if (response.ok) {
                 const data = await response.json();
                 setLippu(data);
+                alert('Lippu asetettu käytetyksi')
             } else {
                 console.error("Virhe lipun haussa");
                 setLippu(null);

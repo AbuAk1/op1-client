@@ -72,8 +72,8 @@ function Maksu() {
         try {
             uusiMaksutapahtuma = await luoUusiMaksutapahtuma();  // Odotetaan maksutapahtuman luontia
         } catch (error) {
-            alert("Maksutapahtumaa ei luotu error!");
-            return; // Lopetetaan laskutuksen suorittaminen, jos maksutapahtumaa ei voitu luoda
+            alert("Maksutapahtumaa ei voitu luoda");
+            return;
         }
 
         // Varmistetaan, että maksutapahtuma on luotu

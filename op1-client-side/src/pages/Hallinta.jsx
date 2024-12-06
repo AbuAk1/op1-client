@@ -16,7 +16,6 @@ import {
     Paper,
     CssBaseline
 } from '@mui/material';
-import Raportti from '../components/Raportti';
 
 function Hallinta() {
     const url = "https://ticketguru-backend-main-ohjelmistoprojekti.2.rahtiapp.fi";
@@ -54,7 +53,7 @@ function Hallinta() {
         }
     }, []);
 
-
+    // haetaan kaikki tapahtumat
     const haeTapahtumat = async () => {
         try {
             const response = await fetch(
@@ -79,6 +78,7 @@ function Hallinta() {
         }
     };
 
+    // poistetaan tapahtuma
     const poistaTapahtuma = async (tapahtumaId) => {
         try {
             const response = await fetch(
@@ -105,7 +105,7 @@ function Hallinta() {
         }
     };
 
-
+    // haetaan hinnastot tapahtumalle
     const haeHinnastot = async (tapahtumaId) => {
 
         try {
@@ -128,6 +128,7 @@ function Hallinta() {
         }
     };
 
+    // poistetaan hinnasto
     const poistaHinnasto = async (hinnastoId) => {
 
         try {
@@ -149,24 +150,15 @@ function Hallinta() {
                 );
                 alert('Hinnastoluokka poistettu');
 
-            } else if (response.status === 404) {
-                // Jos hinnastoa ei löydy
-                alert('Hinnasto ei löytynyt tai on linkitetty lippuun.');
-            } else if (response.status === 410) {
-                // Jos poistettu (soft)
-                alert('Hinnasto poistettu käytöstä');
-            } else if (response.status === 403) {
-                alert('Sinulla ei ole oikeuksia poistamiseen');
             } else {
-                console.error('Virhe hinnaston poistossa');
-                alert('Virhe hinnaston poistossa');
+                alert('Et voi poistaa käytössä olevaa hinnastoa')
             }
         } catch (error) {
             console.error('Virhe pyynnön aikana:', error);
-            alert('Virhe pyynnön aikana');
         }
     };
 
+    // luodaan hinnasto
     const luoHinnasto = async () => {
         if (!hinnastoluokka || !hinta) {
             alert('Täytä kaikki kentät!');
@@ -288,6 +280,7 @@ function Hallinta() {
         });
     };
 
+    // uuden tapahtuman luonti
     const luoUusiTaphtuma = async (uusiTapahtuma) => {
 
         if (
@@ -359,17 +352,14 @@ function Hallinta() {
                         alert('Ovimyynti hinta lisätty');
                     } else {
                         const errorData = await response.json();
-                        console.error('Virhe hinnaston luomisessa:', errorData);
-                        alert('Virhe hinnaston luomisessa');
+                        alert('Virhe hinnaston luomisessa', errorData);
                     }
                 } catch (error) {
-                    console.error('Virhe pyynnön aikana:', error);
                     alert('Virhe yhteydessä palvelimeen');
                 }
             } else {
                 const errorData = await response.json();
-                console.error('Virhe tapahtuman lisäämisessä:', errorData);
-                alert(`Virhe tapahtuman lisäämisessä: ${errorData.message || 'Tuntematon virhe'}`);
+                alert(`Virhe tapahtuman lisäämisessä: ${errorData || 'Tuntematon virhe'}`);
             }
         } catch (error) {
             console.error('Virhe pyynnön aikana:', error);
@@ -388,9 +378,25 @@ function Hallinta() {
         ) {
             alert('Täytä kaikki kentät!');
             return;
+
         } else if (!uusiTapahtuma.id) {
             alert('jotain meni vikaan id:tä ei löytynyt');
             return;
+
+        } else {
+            // tarkistetaan että tapahtuman aika eikä ennakkomyynti voi olla menneisyydessä
+            const tapahtumaAika = new Date(uusiTapahtuma.aika);
+            const ennakkomyynti = new Date(uusiTapahtuma.ennakkomyynti);
+
+            if (tapahtumaAika < new Date()) {
+                alert('Tapahtuman aika ei voi olla menneisyydessä');
+                return;
+            }
+
+            if (ennakkomyynti < new Date()) {
+                alert('Tapahtuman ennakkomyynti ei voi olla menneisyydessä');
+                return;
+            }
         }
 
         const { id, ...bodyarray } = uusiTapahtuma;
@@ -544,6 +550,7 @@ function Hallinta() {
                                                         color="primary"
                                                         onClick={() => alert(`
                                                             Tapahtuma: ${tapahtuma.nimi}
+                                                            Aika: ${tapahtuma.aika}
                                                             Lippumäärä: ${tapahtuma.lippumaara}
                                                             Paikka: ${tapahtuma.paikka}
                                                             Ennakkomyynti loppuu: 

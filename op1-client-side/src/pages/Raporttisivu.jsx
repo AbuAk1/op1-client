@@ -102,8 +102,16 @@ function Raporttisivu() {
                 variant="contained"
                 color="primary"
                 onClick={avaaRaporttiModal}
+                sx={{ mr: 1 }}
             >
                 Avaa Raportti
+            </Button>
+
+            <Button
+                variant="outlined"
+                onClick={() => navigate(-1)}
+            >
+                Takaisin
             </Button>
 
             {valittuTapahtuma && (
