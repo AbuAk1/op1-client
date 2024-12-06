@@ -353,7 +353,7 @@ function Hallinta() {
                         const data = await response.json();
                         // Päivitetään hinnastot-tila
                         setHinnastot((prevHinnastot) => {
-                            return [...prevHinnastot, data];  // Lisää uusi hinnasto edellisten perään
+                            return [...prevHinnastot, data];
                         });
 
                         alert('Ovimyynti hinta lisätty');
@@ -451,6 +451,10 @@ function Hallinta() {
                         Lisää Tapahtuma +
                     </Button>
                     <Button variant="contained" color="primary" sx={{ mb: 1 }} size='small'
+                        onClick={() => navigate("/Raporttisivu")}>
+                        Raportit
+                    </Button>
+                    <Button variant="contained" color="primary" sx={{ mb: 1 }} size='small'
                         onClick={() => alert('Käyttäjien hallinta tulossa myöhemmin')}>
                         Hallinnoi käyttäjiä
                     </Button>
@@ -483,7 +487,7 @@ function Hallinta() {
                         <Button
                             variant="contained"
                             onClick={clearSearch}
-                            sx={{ height: '100%', whiteSpace: 'nowrap', }} // Varmistaa, että nappi on saman korkuinen kuin hakukenttä
+                            sx={{ height: '100%', whiteSpace: 'nowrap', }}
                         >
                             Poista haku
                         </Button>
@@ -519,22 +523,22 @@ function Hallinta() {
                                                         variant="outlined"
                                                         color="primary"
                                                         onClick={() => {
-                                                            setMuokattavaTapahtuma({
-                                                                id: tapahtuma.tapahtumaId,
-                                                                nimi: tapahtuma.nimi,
-                                                                aika: tapahtuma.aika,
-                                                                paikka: tapahtuma.paikka,
-                                                                kuvaus: tapahtuma.kuvaus,
-                                                                lippumaara: tapahtuma.lippumaara,
-                                                                ennakkomyynti: tapahtuma.ennakkomyynti
-                                                            });
-                                                            setTapahtumaModal(true);
+                                                        setMuokattavaTapahtuma({
+                                                            id: tapahtuma.tapahtumaId,
+                                                            nimi: tapahtuma.nimi,
+                                                            aika: tapahtuma.aika,
+                                                            paikka: tapahtuma.paikka,
+                                                            kuvaus: tapahtuma.kuvaus,
+                                                            lippumaara: tapahtuma.lippumaara,
+                                                            ennakkomyynti: tapahtuma.ennakkomyynti,
+                                                        });
+                                                        setTapahtumaModal(true);
                                                         }}
                                                         size="small"
-                                                    >
+                                                        disabled={new Date(tapahtuma.aika) < new Date()} // Estetään klikkaus menneisyydessä oleville tapahtumille
+                                                        >
                                                         Muokkaa
                                                     </Button>
-
                                                     <Button
                                                         variant="outlined"
                                                         color="primary"
@@ -549,29 +553,6 @@ function Hallinta() {
                                                     >
                                                         Lisätiedot
                                                     </Button>
-                                                    {/*Raportti nappi*/}
-                                                    <Button
-                                                        variant="outlined"
-                                                        color="primary"
-                                                        onClick={() => avaaRaporttiModal(tapahtuma.tapahtumaId)}
-                                                        size="small"
-                                                        >
-                                                        Raportti
-                                                    </Button>
-                                                    {/*Raportti modeli, ei toiminut täällä. Vietiin omaksi sivuksi niin toimi*/}
-                                                    
-                                                        {raporttiModal && 
-                                                        <Raportti 
-                                                        open={raporttiModal} 
-                                                        onClose={() => setRaporttiModal(false)} 
-                                                        tapahtuma={tapahtuma} 
-                                                        role={role} 
-                                                        url={url} 
-                                                        token={token} 
-                                                    />
-                                                        
-                                                        }
-                                                        
                                                     <Button
                                                         variant="outlined"
                                                         color="primary"
