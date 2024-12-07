@@ -13,6 +13,7 @@ Projekti yhdistää moderneja frontend-teknologioita, joista tässä keskeisimm�
 * **React Router DOM:** Reitityskirjasto, jonka avulla käyttöliittymäsovelluksessa voidaan hallita  reititystä ja monisivuisten näkymien navigaatiota.
 * **Material-UI (MUI):** Käyttöliittymäkirjasto, jossa on tyylikkäitä ja käyttövalmiita komponentteja, esim. painikkeita ja lomakkeita.
 * **JSQR ja qrcode.react:** QR-koodien luontiin ja skannaamiseen liittyvät kirjastot.
+* **ApexCharts:** Kaavioiden luontiin liittyvä kirjasto.
 
 ## Käyttöliittymän keskeiset toiminnot
 Tässä esitellään käyttöliittymän keskeiset toiminnot rautalankamalleina ja eri käyttäjäroolien näkökulmasta.
