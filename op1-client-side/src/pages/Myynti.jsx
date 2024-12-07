@@ -651,13 +651,17 @@ function Myynti() {
                             ))}
                         </Select>
                     </FormControl>
-                    {selectedTapahtuma && selectedTapahtuma.lippumaara - lisatytLiput.length == 0 && (
+                    {selectedTapahtuma && (selectedTapahtuma.lippumaara - selectedTapahtuma.myydytLiput) - lisatytLiput.length == 0 && (
                         <Typography variant="h6" gutterBottom color="error">Liput ovat loppuunmyyty</Typography>)}
                     <Button
                         variant="contained"
                         color="secondary"
                         onClick={lisaaLippu}
                         fullWidth
+                        disabled={
+                            selectedTapahtuma &&
+                            (selectedTapahtuma.lippumaara - selectedTapahtuma.myydytLiput) - lisatytLiput.length == 0
+                         }
                     >
                         Lisää lippu
                     </Button>
