@@ -2,45 +2,47 @@
 Documentation           Test to check RF environment w/ SeleniumLibrary & ChromeDriver.
 Library         SeleniumLibrary   15.0   5.0
 
-Test Setup      Open Sovellus
-Test Teardown   Close Browser
-
 *** Variables ***
-${BASE_URL}      http://localhost:5173/
+${BASE_URL}      https://op1-client-front-ohjelmistoprojekti.2.rahtiapp.fi/
 ${BROWSER}      Chrome
 
 
-
-
-
 *** Test Cases ***
-Kirjautuminen
-    [Documentation]    Testaa, että kirjautuminen onnistuu
+Kirjautuminen väärillä tunnuksilla
+    [Documentation]     Kirjautuu sovellukseen väärillä tunnuksilla
     Open Sovellus
-    Kirjautuminen userina
+    Input Text    xpath=//input[@type='text']    matti
+    Input Text    xpath=//input[@type='password']    salasana
+    Click Button  xpath=//button[@type='submit']
+    Element Should Be Visible     xpath=/html/body/div/div/div[2]/div/div/div[2]
     Close Browser
 
-Tapahtumat listattuna
-    [Documentation]    Testaa, että pääsee tapahtumalistaukseen
+Tapahtuman lisääminen
+    [Documentation]    Testaa, että tapahtumia pystyy lisäämään
     Open Sovellus
-    Kirjautuminen userina
-    Tapahtumien listaus
+    Kirjautuminen adminina
+    Siirry hallintaan
+    Lisää uusi tapahtuma 
     Close Browser
 
-Lipuntarkastus
-    [Documentation]    Testaa, että lipun tarkastus onnistuu
+Lippumäärän lisäys myyntitapahtumaan
+    [Documentation]    Testaa, että myyntitapahtumalle voidaan lisätä useampi lippu
     Open Sovellus
     Kirjautuminen userina
-    Lipuntarkastaminen
-    Lippu käytetyksi
+    Siirry myyntiin
+    Lisää liput maksutapahtumalle
+    Lasketaan lippurivit
     Close Browser
 
-Virheellinen lippu
-    [Documentation]    Testaa, että virheellinen lippu antaa ilmoituksen
+Maksutapahtuman summa
+    [Documentation]    Testaa, lippuja myytäessä näkyy myynnin summa
     Open Sovellus
     Kirjautuminen userina
-    Väärä lippu
+    Siirry myyntiin
+    Lisää liput maksutapahtumalle
+    Tarkista summa
     Close Browser
+
 
 *** Keywords ***
 Open Sovellus
@@ -53,40 +55,58 @@ Kirjautuminen userina
     Click Button  xpath=//button[@type='submit']
     Alert Should Be Present       action=ACCEPT
 
-Tapahtumien listaus
-    [Documentation]     Hakee sovelluksesta tapahtumalistan
-    Element Should Contain    xpath=//h3[text()='Home']    Home
+Kirjautuminen adminina
+    [Documentation]     Kirjautuu sovellukseen käyttäjänä admin-käyttäjänä
+    Input Text    xpath=//input[@type='text']    matti123
+    Input Text    xpath=//input[@type='password']    salasana
+    Click Button  xpath=//button[@type='submit']
+    Alert Should Be Present       action=ACCEPT
+
+Siirry hallintaan
+    Element Should Contain    xpath=//h3[text()='VALIKKO']    VALIKKO
+    Wait Until Element Is Visible   xpath=//div[text()='Siirry Hallintaan']
+    Click Element        xpath=//button[.//div[text()='Siirry Hallintaan']]
+    Wait Until Element Is Visible  xpath=//button[@type='button' and text()='Lisää Tapahtuma +']
+
+Lisää uusi tapahtuma
+    Click Element  xpath=//button[@type='button' and text()='Lisää Tapahtuma +']
+    Element Should Contain    xpath=//h6[text()='Uusi tapahtuma']    Uusi tapahtuma
+    Input Text                xpath=/html/body/div[2]/div[3]/div/div[1]/div/input             Testitapahtuma
+    Input Text                xpath=/html/body/div[2]/div[3]/div/div[2]/div/input             24-12-2024
+    Input Text                xpath=/html/body/div[2]/div[3]/div/div[3]/div/input             Helsinki
+    Input Text                xpath=/html/body/div[2]/div[3]/div/div[4]/div/textarea[1]       Testaustapahtuma
+    Input Text                xpath=/html/body/div[2]/div[3]/div/div[5]/div/input             2
+    Input Text                xpath=/html/body/div[2]/div[3]/div/div[6]/div/input             23-12-2024
+    Click Element             xpath=/html/body/div[2]/div[3]/div/button
+    Alert Should Be Present             action=ACCEPT
+    Wait Until Element Is Visible       xpath=/html/body/div/div/div[2]/div[2]/div/table/tbody
+    Element Should Contain              xpath=/html/body/div/div/div[2]/div[2]/div/table/tbody      Testitapahtuma    
+
+Siirry myyntiin
+    Element Should Contain    xpath=//h3[text()='VALIKKO']    VALIKKO
     Wait Until Element Is Visible   xpath=//div[text()='Siirry Myyntiin']
-    Element Should Be Visible    xpath=//div[text()='Siirry Myyntiin']
     Click Element        xpath=//button[.//div[text()='Siirry Myyntiin']]
     Wait Until Element Is Visible   xpath=//button[text()='Hae tapahtumat']
-    Wait Until Page Contains Element    xpath=//div
 
-Lipuntarkastaminen
-    [Documentation]     Tarkistaa lipun
-    Element Should Contain    xpath=//h3[text()='Home']    Home
-    Wait Until Element Is Visible   xpath=//div[text()='Siirry Tarkistukseen']
-    Element Should Be Visible    xpath=//div[text()='Siirry Tarkistukseen']
-    Click Element        xpath=//button[.//div[text()='Siirry Tarkistukseen']]
-    Input Text    xpath=//input[@type='text']    0ff0352f-95b9-4b1d-8fc1-8251a39ed4ba
-    Click Element   xpath=//button[text()='Etsi']
-    Wait Until Page Contains Element    xpath=//div
-   
-
-Väärä lippu
-    [Documentation]     Tarkistaa lipun
-    Element Should Contain    xpath=//h3[text()='Home']    Home
-    Wait Until Element Is Visible   xpath=//div[text()='Siirry Tarkistukseen']
-    Click Element        xpath=//button[.//div[text()='Siirry Tarkistukseen']]
-    Input Text    xpath=//input[@type='text']    0ff0352f-95b9-4b1d-251a39ed4ba
-    Click Element   xpath=//button[text()='Etsi']
-    Wait Until Page Contains Element    xpath=//p
-    Page Should Contain    Ei saatavilla tietoja maksua varten.
-
-Lippu käytetyksi
-    Click Button  xpath=//button[text()='Merkitse käytetyksi']
-    Page Should Contain    Käytetty: true
+Lisää liput maksutapahtumalle
+    [Documentation]     Hae tapahtumat - Myy lippuja - Valitse hintaluokka - Lisää lippu
+    Click Element        xpath=//button[text()='Hae tapahtumat']
+    Wait Until Page Contains Element     xpath=//*[@id="root"]/div/div
+    Click Element       xpath=//*[@id="root"]/div/div/div[1]/div[2]/button
+    Click Element       xpath=/html/body/div[2]/div[3]/div/div/div
+    Click Element       xpath=/html/body/div[3]/div[3]/ul/li[2]
+    Click Element       xpath=/html/body/div[2]/div[3]/button
+    Click Element       xpath=//*[@id="root"]/div/div/div[1]/div[2]/button
+    Click Element       xpath=/html/body/div[2]/div[3]/div/div/div
+    Click Element       xpath=/html/body/div[3]/div[3]/ul/li[3]
+    Click Element       xpath=/html/body/div[2]/div[3]/button
+    Wait Until Element Is Visible    xpath=/html/body/div/div/div[2]/table/tbody/tr[2]
     
-Lippu ei-käytetyksi
-    Click Button  xpath=//button[text()='peruuta']
-    Page Should Contain    Käytetty: false
+Lasketaan lippurivit
+    ${rows}=    Get Element Count    xpath=/html/body/div/div/div[2]/table/tbody/tr
+    Should Be Equal As Numbers    ${rows}       2
+
+
+Tarkista summa
+    Click Element       xpath=//*[@id="root"]/div/div[2]/button
+    Element Should Contain          xpath=//*[@id="root"]/div/div[2]/p      Hinta yhteensä: 23€
