@@ -1,17 +1,17 @@
 import React from 'react';
 import { Paper, Box, Typography } from '@mui/material';
-import {QRCodeSVG} from 'qrcode.react';
-import logo from '../images/ticketguru.webp';
+import { QRCodeSVG } from 'qrcode.react';
+import logo from '../../images/ticketguru.webp';
 
 
-export const Lippu = ({ lippu }) => {
+export default function Lippu({ lippu }) {
   return (
-    <Paper elevation={2} 
-      style={{ 
+    <Paper elevation={2}
+      style={{
         padding: '30px',
         display: 'flex',
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+        justifyContent: 'space-between',
+        alignItems: 'center',
         gap: 3,
         background: 'linear-gradient(to top right, #c8dafc, #e0f4ff)'
       }} >
@@ -29,10 +29,10 @@ export const Lippu = ({ lippu }) => {
           <Typography variant="body1">Käytetty: {lippu.kaytetty.toString()}</Typography>
         </Box>
         <Box>
-          <img 
-            src={logo} 
-            alt="description" 
-            style={{ width: '80px', height: '80px', marginRight: '10px' }} 
+          <img
+            src={logo}
+            alt="description"
+            style={{ width: '80px', height: '80px', marginRight: '10px' }}
           />
         </Box>
       </Box>
@@ -41,5 +41,3 @@ export const Lippu = ({ lippu }) => {
     </Paper>
   );
 };
-
-export default Lippu;

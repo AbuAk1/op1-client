@@ -1,45 +1,8 @@
-import React, { useState, useEffect } from "react";
 import { Modal, Box, Typography, Button } from "@mui/material";
 import PieChart from "./PieChart";
 import BarChart from "./BarChart";
 
-const Raportti = ({ open, onClose, tapahtuma, role, url, token }) => {
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState('');
-    
-
-    useEffect(() => {
-        if (tapahtuma && tapahtuma.tapahtumaId) {
-            fetchRaporttiData();
-        }
-    }, [tapahtuma]);
-
-    // haetaan raporttidata
-    const fetchRaporttiData = async () => {
-        try {
-            const response = await fetch(
-                `${url}/api/tapahtumat/${tapahtuma.tapahtumaId}/liput`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            if (response.ok) {
-                const data = await response.json();
-                setData(data);
-                setLoading(false);
-            } else {
-                setMessage('Ei tietoja');
-            }
-        } catch (error) {
-            console.error('Virhe pyynnön aikana:', error);
-        }
-    }
-
+export default function Raportti({ open, onClose, data, loading, message }) {
 
     return (
         <Modal open={open} onClose={onClose}>
@@ -112,5 +75,3 @@ const Raportti = ({ open, onClose, tapahtuma, role, url, token }) => {
         </Modal>
     );
 };
-
-export default Raportti;

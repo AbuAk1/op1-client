@@ -1,7 +1,8 @@
 import React from "react";
 import Chart from "react-apexcharts";
 
-const BarChart = ({ data }) => {
+export default function BarChart({ data }) {
+
   // Ryhmittele datan hintaluokat ja laske määrät
   const groupedData = data.reduce((acc, item) => {
     const { hintaluokka } = item.hinnasto;
@@ -62,5 +63,3 @@ const BarChart = ({ data }) => {
 
   return <Chart options={chartOptions} series={chartSeries} type="bar" width="600" />;
 };
-
-export default BarChart;

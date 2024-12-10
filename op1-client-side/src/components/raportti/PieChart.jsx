@@ -1,7 +1,8 @@
 import React from "react";
 import Chart from "react-apexcharts";
 
-const PieChart = ({ data }) => {
+export default function PieChart({ data }) {
+
   // Ryhmittele datan hintaluokat ja laske määrät sekä yhteishinnat
   const groupedData = data.reduce((acc, item) => {
     const { hintaluokka, hinta } = item.hinnasto;
@@ -68,5 +69,3 @@ const PieChart = ({ data }) => {
     </div>
   );
 };
-
-export default PieChart;

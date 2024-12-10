@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Button,
@@ -6,68 +6,29 @@ import {
     Box,
     Select,
     MenuItem,
-    Modal,
     CssBaseline
 } from '@mui/material';
-import Raportti from '../components/Raportti';
+import Raportti from '../components/raportti/Raportti';
+import useRaportti from '../hooks/useRaportti';
 
 function Raporttisivu() {
-    const url = "https://ticketguru-backend-main-ohjelmistoprojekti.2.rahtiapp.fi";
-    const [tapahtumat, setTapahtumat] = useState([]);
-    const [valittuTapahtuma, setValittuTapahtuma] = useState(null);
-    const [raporttiModal, setRaporttiModal] = useState(false);
-    const token = localStorage.getItem("token");
 
-    const navigate = useNavigate();
-
+    // Haetaan käyttäjän rooli
     const role = localStorage.getItem('role');
 
+    // Käytetään useRaportti-hookkia
+    const { valittuTapahtuma, tapahtumat, avaaRaporttiModal, suljeRaporttiModal,
+        raporttiModal, loading, data, message, setValittuTapahtuma } = useRaportti();
+
+    // Käytetään navigointia
+    const navigate = useNavigate();
+
+    // Ohjataan käyttäjä takaisin etusivulle, mikäli ei ole admin-oikeuksia
     useEffect(() => {
-        // Jos käyttäjä ei ole admin ohjataan takaisin home-sivulle
         if (role !== 'ADMIN') {
             navigate("/home");
         }
     }, []);
-
-    useEffect(() => {
-        // Haetaan tapahtumat, kun komponentti ladataan
-        haeTapahtumat();
-    }, []);
-
-    const haeTapahtumat = async () => {
-        try {
-            const response = await fetch(
-                `${url}/api/tapahtumat`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            if (response.ok) {
-                const data = await response.json();
-                setTapahtumat(data);
-            } else {
-                console.error('Virhe tapahtumien haussa');
-            }
-        } catch (error) {
-            console.error('Virhe pyynnön aikana:', error);
-        }
-    };
-
-    const avaaRaporttiModal = () => {
-        if (valittuTapahtuma) {
-            setRaporttiModal(true);
-        } else {
-            alert("Valitse ensin tapahtuma!");
-        }
-    };
-
-    const suljeRaporttiModal = () => {
-        setRaporttiModal(false);
-    };
 
     return (
         <Box sx={{ padding: 4 }}>
@@ -76,6 +37,8 @@ function Raporttisivu() {
                 Raporttisivu
             </Typography>
 
+
+            {/* Valitaan tapahtuma, josta halutaan raportti */}
             <Box sx={{ marginBottom: 3 }}>
                 <Typography variant="h6">Valitse tapahtuma:</Typography>
                 <Select
@@ -114,20 +77,15 @@ function Raporttisivu() {
                 Takaisin
             </Button>
 
+            {/* Jos tapahtuma on valittu näytetään raportti */}
             {valittuTapahtuma && (
-                <Modal
+                <Raportti
                     open={raporttiModal}
                     onClose={suljeRaporttiModal}
-                >
-                    <Raportti
-                        open={raporttiModal}
-                        onClose={suljeRaporttiModal}
-                        tapahtuma={valittuTapahtuma}
-                        role={role}
-                        url={url}
-                        token={token}
-                    />
-                </Modal>
+                    data={data}
+                    loading={loading}
+                    message={message}
+                />
             )}
         </Box>
     );

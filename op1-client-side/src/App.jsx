@@ -5,8 +5,7 @@ import Myynti from './pages/Myynti'
 import Maksu from './pages/Maksu'
 import Hallinta from './pages/Hallinta'
 import Raporttisivu from './pages/Raporttisivu'
-import {createBrowserRouter, RouterProvider,} from "react-router-dom";
-
+import { createBrowserRouter, RouterProvider, } from "react-router-dom";
 import Home from './pages/Home'
 
 
@@ -49,7 +48,7 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
-      
+
     </>
   )
 }
