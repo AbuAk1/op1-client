@@ -50,15 +50,15 @@ Open Sovellus
 
 Kirjautuminen userina
     [Documentation]     Kirjautuu sovellukseen käyttäjänä user-käyttäjänä
-    Input Text    xpath=//input[@type='text']    matti321
-    Input Text    xpath=//input[@type='password']    salasana
+    Input Text    xpath=//input[@type='text']    myyja
+    Input Text    xpath=//input[@type='password']    myyja
     Click Button  xpath=//button[@type='submit']
     Alert Should Be Present       action=ACCEPT
 
 Kirjautuminen adminina
     [Documentation]     Kirjautuu sovellukseen käyttäjänä admin-käyttäjänä
-    Input Text    xpath=//input[@type='text']    matti123
-    Input Text    xpath=//input[@type='password']    salasana
+    Input Text    xpath=//input[@type='text']    admin
+    Input Text    xpath=//input[@type='password']    admin
     Click Button  xpath=//button[@type='submit']
     Alert Should Be Present       action=ACCEPT
 
@@ -105,7 +105,6 @@ Lisää liput maksutapahtumalle
 Lasketaan lippurivit
     ${rows}=    Get Element Count    xpath=/html/body/div/div/div[2]/table/tbody/tr
     Should Be Equal As Numbers    ${rows}       2
-
 
 Tarkista summa
     Click Element       xpath=//*[@id="root"]/div/div[2]/button
